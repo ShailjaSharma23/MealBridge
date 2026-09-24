@@ -172,3 +172,27 @@ export const sendDeliveredCertificateEmail = async (donation, donorEmail) => {
 
   return await sendEmail({ to: targetEmail, subject, htmlContent });
 };
+
+/**
+ * Send secure 6-digit OTP verification email via Brevo
+ */
+export const sendOtpEmail = async (email, otp) => {
+  const subject = `🔐 ${otp} is your MealBridge verification code`;
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #F9FAFB; padding: 24px; color: #1E352F;">
+        <div style="max-width: 480px; margin: 0 auto; background: #ffffff; border-radius: 20px; overflow: hidden; border: 1px solid #E5E7EB; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; padding: 32px 24px;">
+          <div style="font-size: 36px; margin-bottom: 8px;">🌉</div>
+          <h1 style="font-size: 22px; font-weight: 800; color: #1E352F; margin: 0 0 8px 0;">MealBridge Verification</h1>
+          <p style="font-size: 13px; color: #6B7280; margin: 0 0 24px 0;">Use the following 6-digit One-Time Password (OTP) to securely sign in or register.</p>
+          <div style="background-color: #F4F7F4; border: 2px dashed #8BA888; border-radius: 16px; padding: 18px; margin: 0 auto 24px auto; display: inline-block;">
+            <span style="font-family: monospace; font-size: 32px; font-weight: 900; letter-spacing: 8px; color: #1E352F;">${otp}</span>
+          </div>
+          <p style="font-size: 12px; color: #9CA3AF; margin: 0;">This OTP is valid for 10 minutes. Do not share this code with anyone.</p>
+        </div>
+      </body>
+    </html>
+  `;
+  return await sendEmail({ to: email, subject, htmlContent });
+};

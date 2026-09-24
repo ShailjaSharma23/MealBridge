@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useRole } from '../../context/RoleContext';
-import { User, ChevronDown, Check, Menu, X, Sparkles, Settings, LogIn } from 'lucide-react';
+import { User, ChevronDown, Check, Menu, X, Sparkles, Settings, LogIn, LogOut } from 'lucide-react';
 import RoleProfileModal from './RoleProfileModal.jsx';
 import AuthModal from './AuthModal.jsx';
 
 const Navbar = () => {
-  const { currentRole, currentUser, switchRole } = useRole();
+  const { currentRole, currentUser, switchRole, logout } = useRole();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
@@ -80,8 +80,22 @@ const Navbar = () => {
               <div
                 className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-warm-border p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150"
               >
+                {/* Active User Information Card */}
+                {currentUser && (
+                  <div className="p-2.5 bg-warm rounded-xl mb-2 border border-warm-border">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-forest/50">Logged In User</span>
+                      <span className="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                        Verified
+                      </span>
+                    </div>
+                    <div className="text-xs font-bold text-forest truncate mt-0.5">{currentUser.name}</div>
+                    <div className="text-[11px] text-forest/60 truncate">{currentUser.email}</div>
+                  </div>
+                )}
+
                 {/* Profile Form Action */}
-                <div className="p-2 border-b border-warm-border">
+                <div className="p-1 border-b border-warm-border space-y-1">
                   <button
                     onClick={() => {
                       setDropdownOpen(false);
@@ -98,19 +112,35 @@ const Navbar = () => {
                     </span>
                   </button>
 
-                  <button
-                    onClick={() => {
-                      setDropdownOpen(false);
-                      setAuthModalOpen(true);
-                    }}
-                    className="w-full mt-1.5 flex items-center justify-between p-2.5 rounded-xl hover:bg-warm text-forest transition-colors text-xs font-semibold"
-                  >
-                    <div className="flex items-center gap-2">
-                      <LogIn className="w-4 h-4 text-sunburst-600" />
-                      <span>Sign In / Create Account</span>
-                    </div>
-                    <span className="text-[10px] text-forest/40">Auth &rarr;</span>
-                  </button>
+                  {currentUser ? (
+                    <button
+                      onClick={() => {
+                        logout();
+                        setDropdownOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-rose-50 text-rose-700 transition-colors text-xs font-semibold"
+                    >
+                      <div className="flex items-center gap-2">
+                        <LogOut className="w-4 h-4 text-rose-600" />
+                        <span>Sign Out</span>
+                      </div>
+                      <span className="text-[10px] text-rose-500">Exit</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setDropdownOpen(false);
+                        setAuthModalOpen(true);
+                      }}
+                      className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-warm text-forest transition-colors text-xs font-semibold"
+                    >
+                      <div className="flex items-center gap-2">
+                        <LogIn className="w-4 h-4 text-sunburst-600" />
+                        <span>Sign In / Create Account</span>
+                      </div>
+                      <span className="text-[10px] text-forest/40">Auth &rarr;</span>
+                    </button>
+                  )}
                 </div>
 
                 <div className="px-3 pt-2 pb-1 text-[11px] font-semibold text-forest/50 uppercase tracking-wider">

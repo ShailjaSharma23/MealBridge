@@ -7,13 +7,39 @@ export const RoleProvider = ({ children }) => {
   const [currentRole, setCurrentRole] = useState(() => {
     return localStorage.getItem('mealbridge_role') || 'donor';
   });
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('mealbridge_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
   const [isLoading, setIsLoading] = useState(false);
 
-  // Sync role on initial mount
+  // Sync role on initial mount only if no authenticated session exists
   useEffect(() => {
-    switchRole(currentRole, false);
+    if (!currentUser) {
+      switchRole(currentRole, false);
+    }
   }, []);
+
+  const loginUserSession = (user, token) => {
+    setCurrentRole(user.role || 'donor');
+    setCurrentUser(user);
+    if (token) {
+      localStorage.setItem('mealbridge_token', token);
+    }
+    localStorage.setItem('mealbridge_role', user.role || 'donor');
+    localStorage.setItem('mealbridge_user', JSON.stringify(user));
+  };
+
+  const logout = () => {
+    localStorage.removeItem('mealbridge_token');
+    localStorage.removeItem('mealbridge_user');
+    setCurrentUser(null);
+    switchRole('donor', true);
+  };
 
   const switchRole = async (newRole, shouldPersist = true) => {
     setIsLoading(true);
@@ -27,6 +53,7 @@ export const RoleProvider = ({ children }) => {
         }
         if (shouldPersist) {
           localStorage.setItem('mealbridge_role', res.data.role);
+          localStorage.setItem('mealbridge_user', JSON.stringify(res.data.user));
         }
       }
     } catch (err) {
@@ -41,7 +68,16 @@ export const RoleProvider = ({ children }) => {
   };
 
   return (
-    <RoleContext.Provider value={{ currentRole, currentUser, switchRole, isLoading }}>
+    <RoleContext.Provider
+      value={{
+        currentRole,
+        currentUser,
+        switchRole,
+        loginUserSession,
+        logout,
+        isLoading,
+      }}
+    >
       {children}
     </RoleContext.Provider>
   );
