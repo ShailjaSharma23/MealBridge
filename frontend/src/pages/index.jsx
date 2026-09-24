@@ -1,10 +1,6 @@
 import React from 'react';
 
-export const Home = () => (
-  <div className="max-w-7xl mx-auto px-4 py-8">
-    <h1 className="text-3xl font-extrabold text-forest">Home Page</h1>
-  </div>
-);
+export { default as Home } from './Home.jsx';
 
 export const DonorPortal = () => (
   <div className="max-w-7xl mx-auto px-4 py-8">
