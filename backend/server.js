@@ -21,10 +21,28 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, server-to-server)
+      if (!origin) return callback(null, true);
+      const allowed = [
+        'http://localhost:5173',
+        'http://localhost:3000',
+        process.env.CLIENT_URL,
+      ].filter(Boolean);
+      if (
+        allowed.includes(origin) ||
+        origin.endsWith('.onrender.com') ||
+        process.env.CLIENT_URL === '*'
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true); // Permissive for hackathon deployment
+    },
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
