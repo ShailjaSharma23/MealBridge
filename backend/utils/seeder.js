@@ -1,13 +1,24 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import dns from 'dns';
+
+try {
+  dns.setServers(['8.8.8.8', '1.1.1.1']);
+} catch (e) {}
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, '../.env') });
+dotenv.config(); // fallback
+
 import connectDB from '../config/db.js';
 import User from '../models/User.js';
 import Donation from '../models/Donation.js';
 import Match from '../models/Match.js';
 import ImpactLog from '../models/ImpactLog.js';
 import { users, impactData } from './seedData.js';
-
-dotenv.config();
 
 const importData = async () => {
   try {
