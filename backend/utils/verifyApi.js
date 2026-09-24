@@ -15,7 +15,7 @@ import ImpactLog from '../models/ImpactLog.js';
 async function verifyDatabase() {
   console.log('--- 🧪 MealBridge Automated Verification Suite ---');
   try {
-    const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/mealbridge';
+    const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/mealbridge';
     await mongoose.connect(mongoUri);
     console.log('✓ MongoDB Connection: HEALTHY');
 
