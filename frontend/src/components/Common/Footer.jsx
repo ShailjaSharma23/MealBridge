@@ -15,11 +15,19 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative z-10">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
           {/* Logo & Tagline */}
-          <div>
-            <div className="font-display font-extrabold text-xl text-forest flex items-center justify-center md:justify-start gap-1.5">
-              MealBridge 🌉
-            </div>
-            <p className="text-xs text-forest/70 mt-1 max-w-sm">
+          <div className="flex flex-col items-center md:items-start">
+            <Link to="/" className="flex items-center gap-2.5 group">
+              <img
+                src="/logo.png"
+                alt="MealBridge Logo"
+                className="w-8 h-8 rounded-xl object-cover shadow-sm ring-1 ring-sage-200"
+              />
+              <div className="font-display font-black text-xl tracking-tight leading-none">
+                <span className="text-forest">Meal</span>
+                <span className="bg-gradient-to-r from-sage-600 to-emerald-600 bg-clip-text text-transparent">Bridge</span>
+              </div>
+            </Link>
+            <p className="text-xs text-forest/70 mt-2 max-w-sm">
               Connecting surplus restaurant and grocery meals to local shelters in real time before edible food is wasted.
             </p>
           </div>

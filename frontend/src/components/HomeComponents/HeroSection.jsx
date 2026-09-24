@@ -37,13 +37,16 @@ const HeroSection = () => {
         <div className="grid lg:grid-cols-12 gap-12 items-center">
           {/* Left Column: Headlines & CTAs */}
           <div className="lg:col-span-7 space-y-6">
-            {/* Top Tagline */}
-            <div className="hero-animate flex items-center gap-2 text-xs sm:text-sm font-semibold text-sage-600 tracking-wider">
-              <span>Good Food</span>
+            {/* Top Tagline Pill with Logo */}
+            <div className="hero-animate inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 border border-warm-border shadow-xs text-xs font-semibold text-forest">
+              <img src="/logo.png" alt="MealBridge" className="w-4 h-4 rounded-md object-cover shadow-xs" />
+              <span className="font-bold text-forest">Meal<span className="text-sage-600">Bridge</span></span>
               <span className="text-sage-300">•</span>
-              <span>Less Waste</span>
+              <span className="text-forest/70">Good Food</span>
               <span className="text-sage-300">•</span>
-              <span>Stronger Communities</span>
+              <span className="text-forest/70">Less Waste</span>
+              <span className="text-sage-300">•</span>
+              <span className="text-forest/70">Stronger Communities</span>
             </div>
 
             {/* Main Headline */}

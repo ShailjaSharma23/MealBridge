@@ -181,15 +181,28 @@ const AuthModal = ({ isOpen, onClose }) => {
 
         {/* Modal Header */}
         <div className="text-center mb-5">
-          <div className="w-12 h-12 rounded-2xl bg-sage-50 text-sage-600 flex items-center justify-center mx-auto mb-2 border border-sage-200 shadow-xs">
-            {authMode === 'otp' ? <KeyRound className="w-6 h-6" /> : <Lock className="w-6 h-6" />}
+          <div className="w-14 h-14 rounded-2xl mx-auto mb-3 relative flex items-center justify-center">
+            <img
+              src="/logo.png"
+              alt="MealBridge Logo"
+              className="w-14 h-14 rounded-2xl object-cover shadow-md ring-2 ring-sage-200"
+            />
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-xs border border-sage-200">
+              {authMode === 'otp' ? (
+                <KeyRound className="w-3 h-3 text-sunburst-600" />
+              ) : (
+                <Lock className="w-3 h-3 text-sage-600" />
+              )}
+            </div>
           </div>
-          <h2 className="font-display font-black text-2xl text-forest">
-            {authMode === 'otp'
-              ? 'Email OTP Verification'
-              : isRegister
-              ? 'Join MealBridge'
-              : 'Welcome Back'}
+          <h2 className="font-display font-black text-2xl tracking-tight text-forest">
+            {authMode === 'otp' ? (
+              <span>Email OTP Verification</span>
+            ) : isRegister ? (
+              <span>Join <span className="bg-gradient-to-r from-sage-600 to-emerald-600 bg-clip-text text-transparent">MealBridge</span></span>
+            ) : (
+              <span>Welcome Back</span>
+            )}
           </h2>
           <p className="text-xs text-forest/60 mt-1">
             {authMode === 'otp'

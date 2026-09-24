@@ -35,11 +35,23 @@ const Navbar = () => {
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-warm-border transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <span className="font-display font-extrabold text-2xl text-forest tracking-tight flex items-center gap-1.5">
-              MealBridge <span className="text-2xl transform group-hover:scale-110 transition-transform">🌉</span>
-            </span>
+          {/* Brand Logo & Enhanced Typography */}
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="relative">
+              <img
+                src="/logo.png"
+                alt="MealBridge Logo"
+                className="w-10 h-10 rounded-2xl object-cover shadow-md shadow-sage-300/40 group-hover:scale-105 group-hover:rotate-1 transition-all duration-300 ring-2 ring-sage-200/80"
+              />
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white ring-1 ring-emerald-300 animate-pulse" />
+            </div>
+            <div className="flex flex-col">
+              <div className="font-display font-black text-2xl tracking-tight leading-none flex items-center">
+                <span className="text-forest">Meal</span>
+                <span className="bg-gradient-to-r from-sage-600 via-emerald-600 to-teal-700 bg-clip-text text-transparent">Bridge</span>
+              </div>
+              <span className="text-[10px] font-bold tracking-widest uppercase text-forest/45 mt-0.5">Surplus &bull; Shelter</span>
+            </div>
           </Link>
 
           {/* Desktop Navigation Links */}
