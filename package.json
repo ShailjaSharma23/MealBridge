@@ -1,0 +1,26 @@
+{
+  "name": "mealbridge-root",
+  "version": "1.0.0",
+  "description": "MealBridge - Real-Time Food Rescue Routing Platform (MERN)",
+  "private": true,
+  "scripts": {
+    "install:backend": "npm install --prefix backend",
+    "install:frontend": "npm install --prefix frontend",
+    "install:all": "npm install && npm run install:backend && npm run install:frontend",
+    "server": "npm run dev --prefix backend",
+    "client": "npm run dev --prefix frontend",
+    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"cyan,green\" \"npm run server\" \"npm run client\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "keywords": [
+    "food-rescue",
+    "mern",
+    "social-impact",
+    "hackathon",
+    "amihacks"
+  ],
+  "author": "MealBridge Team",
+  "license": "MIT"
+}
