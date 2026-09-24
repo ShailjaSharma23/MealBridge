@@ -10,8 +10,5 @@ export { default as VolunteerPortal } from './VolunteerPortal.jsx';
 
 export { default as AILearningHub } from './AILearningHub.jsx';
 
-export const ImpactDashboard = () => (
-  <div className="max-w-7xl mx-auto px-4 py-8">
-    <h1 className="text-3xl font-extrabold text-forest">Impact Dashboard</h1>
-  </div>
-);
+export { default as ImpactDashboard } from './ImpactDashboard.jsx';
+
