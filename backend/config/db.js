@@ -12,18 +12,29 @@ try {
  * Connect to MongoDB using the MONGODB_URI environment variable.
  * Implements clean error logging and reconnect event listeners.
  */
+const ATLAS_URI = 'mongodb+srv://YASHBHATT:Yash123456@cluster0.c7bb0ee.mongodb.net/mealbridge?retryWrites=true&w=majority';
+
 export const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/mealbridge', {
-      serverSelectionTimeoutMS: 5000,
+    const uri = process.env.MONGODB_URI || ATLAS_URI;
+    const conn = await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 8000,
     });
 
     console.log(`[Database] MongoDB Connected: ${conn.connection.host}/${conn.connection.name}`);
     return conn;
   } catch (error) {
-    console.warn(`[Database Warning] Could not connect to MongoDB: ${error.message}`);
-    console.warn(`[Database Note] Ensure MongoDB is running locally, or configure MONGODB_URI in backend/.env with your MongoDB Atlas connection string.`);
-    return null;
+    console.warn(`[Database Warning] Primary connection failed: ${error.message}. Retrying...`);
+    try {
+      const conn = await mongoose.connect('mongodb://127.0.0.1:27017/mealbridge', {
+        serverSelectionTimeoutMS: 3000,
+      });
+      console.log(`[Database] Connected to local fallback MongoDB`);
+      return conn;
+    } catch (localErr) {
+      console.warn(`[Database Error] Could not connect to local or Atlas MongoDB: ${localErr.message}`);
+      return null;
+    }
   }
 };
 

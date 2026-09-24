@@ -28,6 +28,19 @@ export const createDonation = async (req, res, next) => {
     if (!donor) {
       donor = (await User.findOne({ role: 'donor' })) || (await User.findOne());
     }
+    if (!donor) {
+      donor = await User.create({
+        name: 'Bistro 42',
+        email: 'bistro42@mealbridge.org',
+        password: 'password123',
+        role: 'donor',
+        organizationType: 'Restaurant',
+        location: {
+          address: pickupAddress || '123, Green Park, Sector 12, New Delhi - 110016',
+          coordinates: req.body.pickupCoordinates || { lat: 28.5582, lng: 77.2023 },
+        },
+      });
+    }
 
     const expiryNum = parseFloat(expiryHours) || 3;
     const expiresAt = new Date(Date.now() + expiryNum * 60 * 60 * 1000);
@@ -42,13 +55,25 @@ export const createDonation = async (req, res, next) => {
       expiryHours: expiryNum,
       expiresAt,
       pickupAddress: pickupAddress || donor.location?.address || '123, Green Park, New Delhi',
-      pickupCoordinates: donor.location?.coordinates || { lat: 28.5582, lng: 77.2023 },
+      pickupCoordinates: req.body.pickupCoordinates || donor.location?.coordinates || { lat: 28.5582, lng: 77.2023 },
       photoUrl: photoUrl || 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=600&auto=format&fit=crop',
       status: 'matched',
     });
 
     // Auto-match with nearest compatible shelter (Hope Shelter as default demo match)
-    const targetShelter = (await User.findOne({ role: 'shelter' })) || donor;
+    let targetShelter = await User.findOne({ role: 'shelter' });
+    if (!targetShelter) {
+      targetShelter = await User.create({
+        name: 'Hope Shelter NGO',
+        email: 'hope.shelter@mealbridge.org',
+        password: 'password123',
+        role: 'shelter',
+        location: {
+          address: 'Community Hall 4, Lajpat Nagar, New Delhi',
+          coordinates: { lat: 28.5677, lng: 77.2433 },
+        },
+      });
+    }
 
     const match = await Match.create({
       jobCode: `JOB-${Math.floor(100 + Math.random() * 900)}`,

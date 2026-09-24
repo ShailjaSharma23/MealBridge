@@ -36,6 +36,10 @@ const userSchema = new mongoose.Schema(
       enum: ['Restaurant', 'Bakery', 'Supermarket', 'Cafeteria', 'Shelter', 'FoodBank', 'Individual', 'Other'],
       default: 'Restaurant',
     },
+    fssaiLicense: {
+      type: String,
+      default: 'FSSAI-DEL-2026-98104',
+    },
     isVerified: {
       type: Boolean,
       default: true,

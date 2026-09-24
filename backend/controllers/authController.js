@@ -174,10 +174,15 @@ export const updateUserProfile = async (req, res, next) => {
       user.location = user.location || {};
       user.location.address = req.body.address;
     }
+    if (req.body.coordinates) {
+      user.location = user.location || {};
+      user.location.coordinates = req.body.coordinates;
+    }
 
     // Role-specific fields
     if (user.role === 'donor') {
       if (req.body.organizationType) user.organizationType = req.body.organizationType;
+      if (req.body.fssaiLicense) user.fssaiLicense = req.body.fssaiLicense;
     } else if (user.role === 'shelter') {
       user.shelterDetails = user.shelterDetails || {};
       if (req.body.capacityKg !== undefined) user.shelterDetails.capacityKg = Number(req.body.capacityKg);

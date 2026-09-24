@@ -199,17 +199,91 @@ const Navbar = () => {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-b border-warm-border px-4 pt-2 pb-6 space-y-2">
-          {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              to={link.path}
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2.5 rounded-xl text-base font-medium text-forest hover:bg-sage-50"
-            >
-              {link.name}
-            </Link>
-          ))}
+        <div className="md:hidden bg-white border-b border-warm-border px-4 pt-2 pb-6 space-y-3 shadow-lg animate-in slide-in-from-top-2 duration-150">
+          {/* Mobile Nav Links */}
+          <div className="space-y-1">
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                to={link.path}
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-3 py-2 rounded-xl text-sm font-semibold text-forest hover:bg-sage-50"
+              >
+                {link.name}
+              </Link>
+            ))}
+          </div>
+
+          {/* Active Profile Card & Edit Form Button */}
+          <div className="pt-2 border-t border-warm-border space-y-2">
+            <div className="p-3 bg-warm rounded-2xl border border-warm-border">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-forest/50">Active Role Profile</span>
+                <span className="text-[10px] font-bold text-sage-700 bg-white px-2 py-0.5 rounded-full border border-sage-200">
+                  {currentRoleLabel}
+                </span>
+              </div>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setProfileModalOpen(true);
+                }}
+                className="w-full mt-2.5 flex items-center justify-center gap-2 p-2.5 rounded-xl bg-forest text-white text-xs font-bold shadow-xs hover:bg-forest/90"
+              >
+                <Settings className="w-3.5 h-3.5" />
+                <span>Open {currentRoleLabel} Form</span>
+              </button>
+            </div>
+
+            {/* Quick Mobile Role Switcher */}
+            <div className="px-1 text-[11px] font-bold text-forest/50 uppercase tracking-wider">
+              Switch Role Profile:
+            </div>
+            <div className="grid grid-cols-2 gap-1.5">
+              {roles.map((r) => (
+                <button
+                  key={r.id}
+                  onClick={() => {
+                    switchRole(r.id);
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`p-2 rounded-xl text-left text-xs font-bold flex items-center justify-between border transition-all ${
+                    currentRole === r.id
+                      ? 'bg-sage-50 text-sage-800 border-sage-300'
+                      : 'bg-warm text-forest/70 border-warm-border hover:bg-white'
+                  }`}
+                >
+                  <span className="truncate">{r.label.replace(' Profile', '')}</span>
+                  {currentRole === r.id && <Check className="w-3 h-3 text-sage-600 shrink-0" />}
+                </button>
+              ))}
+            </div>
+
+            {/* Mobile Auth Button */}
+            {currentUser ? (
+              <button
+                onClick={() => {
+                  logout();
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full flex items-center justify-center gap-2 p-2.5 rounded-xl bg-rose-50 text-rose-700 text-xs font-bold border border-rose-200"
+              >
+                <LogOut className="w-3.5 h-3.5 text-rose-600" />
+                <span>Sign Out ({currentUser.name})</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setAuthModalOpen(true);
+                }}
+                className="w-full flex items-center justify-center gap-2 p-2.5 rounded-xl bg-warm text-forest text-xs font-bold border border-warm-border hover:bg-white"
+              >
+                <LogIn className="w-3.5 h-3.5 text-sunburst-600" />
+                <span>Sign In / Create Account</span>
+              </button>
+            )}
+          </div>
         </div>
       )}
 

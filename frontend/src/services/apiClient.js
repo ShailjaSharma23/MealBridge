@@ -2,7 +2,12 @@ import axios from 'axios';
 
 const getBaseURL = () => {
   const envUrl = import.meta.env.VITE_API_URL;
-  if (!envUrl) return '/api';
+  if (!envUrl) {
+    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+      return 'http://localhost:5000/api';
+    }
+    return 'https://mealbridge.onrender.com/api';
+  }
   return envUrl.endsWith('/api') ? envUrl : `${envUrl.replace(/\/+$/, '')}/api`;
 };
 
