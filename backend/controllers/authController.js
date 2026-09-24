@@ -130,3 +130,74 @@ export const loginUser = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * @desc   Get logged in user profile (role-specific details)
+ * @route  GET /api/users/profile
+ * @access Private
+ */
+export const getUserProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    res.json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc   Update user profile with role-specific form fields
+ * @route  PUT /api/users/profile
+ * @access Private
+ */
+export const updateUserProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Common fields
+    if (req.body.name) user.name = req.body.name;
+    if (req.body.phone) user.phone = req.body.phone;
+    if (req.body.address) {
+      user.location = user.location || {};
+      user.location.address = req.body.address;
+    }
+
+    // Role-specific fields
+    if (user.role === 'donor') {
+      if (req.body.organizationType) user.organizationType = req.body.organizationType;
+    } else if (user.role === 'shelter') {
+      user.shelterDetails = user.shelterDetails || {};
+      if (req.body.capacityKg !== undefined) user.shelterDetails.capacityKg = Number(req.body.capacityKg);
+      if (req.body.currentStorageUsedKg !== undefined) user.shelterDetails.currentStorageUsedKg = Number(req.body.currentStorageUsedKg);
+      if (req.body.foodPreferences) user.shelterDetails.foodPreferences = req.body.foodPreferences;
+      if (req.body.contactPerson) user.shelterDetails.contactPerson = req.body.contactPerson;
+    } else if (user.role === 'volunteer') {
+      user.volunteerDetails = user.volunteerDetails || {};
+      if (req.body.vehicleType) user.volunteerDetails.vehicleType = req.body.vehicleType;
+      if (req.body.isAvailableNow !== undefined) user.volunteerDetails.isAvailableNow = Boolean(req.body.isAvailableNow);
+    }
+
+    if (req.body.password) {
+      user.password = req.body.password;
+    }
+
+    const updatedUser = await user.save();
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully!',
+      user: updatedUser,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useRole } from '../../context/RoleContext';
-import { User, ChevronDown, Check, Menu, X, Sparkles } from 'lucide-react';
+import { User, ChevronDown, Check, Menu, X, Sparkles, Settings, LogIn } from 'lucide-react';
+import RoleProfileModal from './RoleProfileModal.jsx';
+import AuthModal from './AuthModal.jsx';
 
 const Navbar = () => {
   const { currentRole, currentUser, switchRole } = useRole();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const location = useLocation();
 
   const navLinks = [
@@ -59,7 +63,7 @@ const Navbar = () => {
             })}
           </nav>
 
-          {/* Role Switcher Dropdown (Top Right) */}
+          {/* Role Switcher & Auth Dropdown (Top Right) */}
           <div className="relative">
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -74,28 +78,63 @@ const Navbar = () => {
             {/* Dropdown Menu */}
             {dropdownOpen && (
               <div
-                className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-warm-border p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150"
-                onClick={() => setDropdownOpen(false)}
+                className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-warm-border p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150"
               >
-                <div className="px-3 py-2 text-xs font-semibold text-forest/50 uppercase tracking-wider border-b border-warm-border mb-1">
+                {/* Profile Form Action */}
+                <div className="p-2 border-b border-warm-border">
+                  <button
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      setProfileModalOpen(true);
+                    }}
+                    className="w-full flex items-center justify-between p-2.5 rounded-xl bg-sage-50 hover:bg-sage-100 text-sage-900 transition-colors text-xs font-bold"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Settings className="w-4 h-4 text-sage-600" />
+                      <span>Edit {currentRoleLabel} Form</span>
+                    </div>
+                    <span className="text-[10px] text-sage-700 bg-white px-2 py-0.5 rounded-full border border-sage-200">
+                      Settings
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      setAuthModalOpen(true);
+                    }}
+                    className="w-full mt-1.5 flex items-center justify-between p-2.5 rounded-xl hover:bg-warm text-forest transition-colors text-xs font-semibold"
+                  >
+                    <div className="flex items-center gap-2">
+                      <LogIn className="w-4 h-4 text-sunburst-600" />
+                      <span>Sign In / Create Account</span>
+                    </div>
+                    <span className="text-[10px] text-forest/40">Auth &rarr;</span>
+                  </button>
+                </div>
+
+                <div className="px-3 pt-2 pb-1 text-[11px] font-semibold text-forest/50 uppercase tracking-wider">
                   Switch Active Role (Demo)
                 </div>
                 {roles.map((r) => (
                   <button
                     key={r.id}
-                    onClick={() => switchRole(r.id)}
+                    onClick={() => {
+                      switchRole(r.id);
+                      setDropdownOpen(false);
+                    }}
                     className={`w-full flex items-start gap-3 p-2.5 rounded-xl text-left transition-colors ${
                       currentRole === r.id
-                        ? 'bg-sage-50 text-sage-800 font-semibold'
+                        ? 'bg-sage-50/70 text-sage-800 font-semibold'
                         : 'hover:bg-warm text-forest/80'
                     }`}
                   >
                     <div className="flex-1">
-                      <div className="text-sm font-semibold flex items-center justify-between">
+                      <div className="text-xs font-bold flex items-center justify-between">
                         {r.label}
-                        {currentRole === r.id && <Check className="w-4 h-4 text-sage-500" />}
+                        {currentRole === r.id && <Check className="w-3.5 h-3.5 text-sage-500" />}
                       </div>
-                      <div className="text-xs text-forest/50 font-normal mt-0.5">{r.desc}</div>
+                      <div className="text-[11px] text-forest/50 font-normal mt-0.5">{r.desc}</div>
                     </div>
                   </button>
                 ))}
@@ -131,6 +170,18 @@ const Navbar = () => {
           ))}
         </div>
       )}
+
+      {/* Interactive Role Profile Settings Modal */}
+      <RoleProfileModal
+        isOpen={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
+      />
+
+      {/* Interactive Authentication Modal (Sign In / Register) */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+      />
     </header>
   );
 };

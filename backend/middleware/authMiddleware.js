@@ -1,0 +1,32 @@
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
+
+/**
+ * Middleware to protect private routes using JWT Bearer token
+ */
+export const protect = async (req, res, next) => {
+  let token;
+
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    try {
+      token = req.headers.authorization.split(' ')[1];
+      const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET || 'mealbridge_jwt_secret_super_secure_key_2026'
+      );
+
+      req.user = await User.findById(decoded.id).select('-password');
+      if (!req.user) {
+        return res.status(401).json({ success: false, message: 'Not authorized, user not found' });
+      }
+
+      return next();
+    } catch (error) {
+      return res.status(401).json({ success: false, message: 'Not authorized, invalid token' });
+    }
+  }
+
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Not authorized, no token provided' });
+  }
+};
