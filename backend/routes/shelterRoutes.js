@@ -1,0 +1,16 @@
+import express from 'express';
+import {
+  getIncomingOffers,
+  respondToOffer,
+  getShelterCapacity,
+  updateShelterCapacity,
+} from '../controllers/shelterController.js';
+
+const router = express.Router();
+
+router.get('/incoming-offers', getIncomingOffers);
+router.post('/offers/:id/respond', respondToOffer);
+router.get('/capacity', getShelterCapacity);
+router.put('/capacity', updateShelterCapacity);
+
+export default router;

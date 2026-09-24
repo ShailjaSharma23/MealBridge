@@ -76,6 +76,11 @@ const donationSchema = new mongoose.Schema(
       ref: 'User',
       default: null,
     },
+    currentMatch: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Match',
+      default: null,
+    },
     trackingTimestamps: {
       postedAt: { type: Date, default: Date.now },
       matchedAt: { type: Date, default: null },

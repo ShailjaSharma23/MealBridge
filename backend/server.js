@@ -4,6 +4,12 @@ import cors from 'cors';
 import morgan from 'morgan';
 import connectDB from './config/db.js';
 import healthRoutes from './routes/healthRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+import donationRoutes from './routes/donationRoutes.js';
+import shelterRoutes from './routes/shelterRoutes.js';
+import volunteerRoutes from './routes/volunteerRoutes.js';
+import aiRoutes from './routes/aiRoutes.js';
+import impactRoutes from './routes/impactRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
 // Load environment variables
@@ -38,6 +44,12 @@ app.get('/', (req, res) => {
 
 // API Routes
 app.use('/api', healthRoutes);
+app.use('/api/users', authRoutes);
+app.use('/api/donations', donationRoutes);
+app.use('/api/shelters', shelterRoutes);
+app.use('/api/volunteers', volunteerRoutes);
+app.use('/api/ai', aiRoutes);
+app.use('/api/impact', impactRoutes);
 
 // Error handling middleware
 app.use(notFound);
