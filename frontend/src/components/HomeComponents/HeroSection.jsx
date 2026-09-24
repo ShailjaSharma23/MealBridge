@@ -119,26 +119,30 @@ const HeroSection = () => {
               {/* Box Image */}
               <div className="relative rounded-2xl overflow-hidden aspect-[4/3] bg-sage-50">
                 <img
-                  src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&auto=format&fit=crop&q=80"
-                  alt="MealBridge fresh surplus food box"
+                  src="/hero-rescue-meal.jpg"
+                  alt="MealBridge fresh cooked surplus meals prepared for shelter delivery"
                   className="w-full h-full object-cover rounded-2xl hover:scale-105 transition-transform duration-700"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
                 
                 {/* Overlay Badge */}
-                <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-bold text-forest shadow-sm flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-sage-500 animate-ping" />
-                  <span>Fresh & Safe for Shelters</span>
+                <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-bold text-forest shadow-md flex items-center gap-2 border border-sage-100">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+                  <span>Fresh Cooked Surplus &bull; Shelter Bound</span>
                 </div>
               </div>
 
               {/* Box Branding Label */}
-              <div className="mt-4 p-4 rounded-2xl bg-amber-50/70 border border-sunburst-200 text-center">
-                <div className="font-display font-extrabold text-lg text-forest flex items-center justify-center gap-1.5">
-                  MealBridge 🌉
+              <div className="mt-4 p-3.5 rounded-2xl bg-amber-50/70 border border-sunburst-200 text-center">
+                <div className="flex items-center justify-center gap-2">
+                  <img src="/logo.png" alt="MealBridge" className="w-5 h-5 rounded-md object-cover shadow-xs" />
+                  <div className="font-display font-black text-lg tracking-tight leading-none">
+                    <span className="text-forest">Meal</span>
+                    <span className="bg-gradient-to-r from-sage-600 to-emerald-600 bg-clip-text text-transparent">Bridge</span>
+                  </div>
                 </div>
-                <div className="text-xs text-forest/60 italic font-medium mt-0.5">
-                  Real Food. Real Impact.
+                <div className="text-xs text-forest/65 italic font-medium mt-1">
+                  Surplus Cooked Meals &bull; Zero Waste &bull; Direct to Shelters
                 </div>
               </div>
             </div>
