@@ -8,11 +8,7 @@ export { default as ShelterPortal } from './ShelterPortal.jsx';
 
 export { default as VolunteerPortal } from './VolunteerPortal.jsx';
 
-export const AILearningHub = () => (
-  <div className="max-w-7xl mx-auto px-4 py-8">
-    <h1 className="text-3xl font-extrabold text-forest">AI Learning Hub</h1>
-  </div>
-);
+export { default as AILearningHub } from './AILearningHub.jsx';
 
 export const ImpactDashboard = () => (
   <div className="max-w-7xl mx-auto px-4 py-8">
