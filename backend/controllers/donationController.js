@@ -1,6 +1,7 @@
 import Donation from '../models/Donation.js';
 import Match from '../models/Match.js';
 import User from '../models/User.js';
+import { sendDonationConfirmationEmail } from '../utils/emailService.js';
 
 /**
  * @desc   Create new surplus food donation
@@ -82,6 +83,11 @@ export const createDonation = async (req, res, next) => {
       deliveredAt: null,
     };
     await donation.save();
+
+    // Trigger Brevo automated confirmation email to donor
+    sendDonationConfirmationEmail(donation, donor?.email).catch((err) =>
+      console.warn('[Email] Non-blocking dispatch notice:', err.message)
+    );
 
     res.status(201).json({
       success: true,

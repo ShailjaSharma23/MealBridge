@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['donor', 'shelter', 'volunteer', 'guest'],
+      enum: ['donor', 'shelter', 'volunteer', 'guest', 'admin'],
       default: 'guest',
       required: true,
     },

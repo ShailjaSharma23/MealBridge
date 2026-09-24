@@ -1,6 +1,7 @@
 import Match from '../models/Match.js';
 import User from '../models/User.js';
 import Donation from '../models/Donation.js';
+import { sendDeliveredCertificateEmail } from '../utils/emailService.js';
 
 /**
  * @desc   Get available rescue jobs for Volunteer Portal (filtered by all, near_me, urgent)
@@ -187,6 +188,13 @@ export const completeDelivery = async (req, res, next) => {
       volunteer.volunteerDetails.completedRescuesCount += 1;
       volunteer.volunteerDetails.totalKgDelivered += match.donation?.quantityKg || 10;
       await volunteer.save();
+    }
+
+    // Automatically email Section 80G Tax & ESG Certificate to donor via Brevo
+    if (match.donation) {
+      sendDeliveredCertificateEmail(match.donation).catch((err) =>
+        console.warn('[Email] Non-blocking certificate delivery error:', err.message)
+      );
     }
 
     res.json({

@@ -155,6 +155,21 @@ export const users = [
     phone: '+91 98000 11223',
     organizationType: 'Individual',
   },
+
+  // --- Super Admin ---
+  {
+    name: 'MealBridge Super Admin',
+    email: 'admin@gmail.com',
+    password: 'password123',
+    role: 'admin',
+    phone: '+91 98999 88888',
+    organizationType: 'Other',
+    isVerified: true,
+    location: {
+      address: 'MealBridge Headquarters, Connaught Place, New Delhi',
+      coordinates: { lat: 28.6315, lng: 77.2167 },
+    },
+  },
 ];
 
 export const impactData = {
