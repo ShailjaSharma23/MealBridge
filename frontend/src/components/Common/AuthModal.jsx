@@ -169,12 +169,12 @@ const AuthModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-forest/60 backdrop-blur-sm animate-in fade-in">
-      <div className="bg-white rounded-3xl max-w-md w-full max-h-[90vh] overflow-y-auto border border-warm-border shadow-2xl p-6 sm:p-8 relative">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-forest/60 backdrop-blur-sm animate-in fade-in p-3 sm:p-6 flex justify-center items-start sm:items-center">
+      <div className="bg-white rounded-3xl max-w-md w-full my-auto border border-warm-border shadow-2xl p-5 sm:p-8 relative">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-full hover:bg-warm text-forest/60 hover:text-forest transition-colors"
+          className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full hover:bg-warm text-forest/60 hover:text-forest transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
@@ -249,6 +249,12 @@ const AuthModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* Form Error / Success feedback */}
+        {loading && (
+          <div className="mb-4 p-3 rounded-2xl bg-amber-50 text-amber-900 text-xs font-semibold border border-amber-200 text-center animate-pulse flex items-center justify-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+            <span>Connecting to live server... (Render cold-start may take ~20-30s if idle)</span>
+          </div>
+        )}
         {errorMsg && (
           <div className="mb-4 p-3 rounded-2xl bg-rose-50 text-rose-800 text-xs font-semibold border border-rose-200">
             {errorMsg}

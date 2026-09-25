@@ -226,8 +226,8 @@ const RoleProfileModal = ({ isOpen, onClose }) => {
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-forest/60 backdrop-blur-sm animate-in fade-in overflow-y-auto">
-      <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto border border-warm-border shadow-2xl p-5 sm:p-7 relative my-auto">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-forest/60 backdrop-blur-sm animate-in fade-in p-3 sm:p-6 flex justify-center items-start sm:items-center">
+      <div className="bg-white rounded-3xl max-w-2xl w-full my-auto border border-warm-border shadow-2xl p-5 sm:p-7 relative">
         {/* Close Button */}
         <button
           onClick={onClose}

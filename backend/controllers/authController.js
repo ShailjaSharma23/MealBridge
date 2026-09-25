@@ -71,19 +71,33 @@ export const switchActiveRole = async (req, res, next) => {
  */
 export const registerUser = async (req, res, next) => {
   try {
-    const { name, email, password, role, organizationType, phone, address } = req.body;
+    let { name, email, password, role, organizationType, phone, address } = req.body;
 
-    const userExists = await User.findOne({ email });
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: 'Please provide email and password' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+
+    // Fallback name if user didn't enter name
+    if (!name || !name.trim()) {
+      const emailPrefix = cleanEmail.split('@')[0];
+      name = emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
+    } else {
+      name = name.trim();
+    }
+
+    const userExists = await User.findOne({ email: cleanEmail });
     if (userExists) {
       return res.status(400).json({ success: false, message: 'User already exists with this email' });
     }
 
     const user = await User.create({
       name,
-      email,
+      email: cleanEmail,
       password,
       role: role || 'donor',
-      organizationType: organizationType || 'Restaurant',
+      organizationType: organizationType || (role === 'shelter' ? 'Shelter' : role === 'volunteer' ? 'Individual' : 'Restaurant'),
       phone: phone || '+91 98765 43210',
       location: { address: address || 'New Delhi' },
     });
@@ -113,7 +127,12 @@ export const registerUser = async (req, res, next) => {
 export const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email }).select('+password');
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: 'Please provide email and password' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const user = await User.findOne({ email: cleanEmail }).select('+password');
 
     if (user && (await user.matchPassword(password))) {
       const token = generateToken(user._id);

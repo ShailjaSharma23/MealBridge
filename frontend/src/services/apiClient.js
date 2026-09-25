@@ -6,7 +6,8 @@ const getBaseURL = () => {
     if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
       return 'http://localhost:5000/api';
     }
-    return 'https://mealbridge.onrender.com/api';
+    // Default to live Render backend
+    return 'https://mealbridge-backend.onrender.com/api';
   }
   return envUrl.endsWith('/api') ? envUrl : `${envUrl.replace(/\/+$/, '')}/api`;
 };
@@ -16,7 +17,7 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 15000,
+  timeout: 60000, // 60 seconds to accommodate Render free-tier cold starts
 });
 
 // Attach token if present in localStorage
