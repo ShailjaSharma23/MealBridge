@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Home, Refrigerator, Tag, UtensilsCrossed, CheckCircle2 } from 'lucide-react';
 import apiClient from '../../services/apiClient';
+import { useRole } from '../../context/RoleContext';
 
 const CapacityBar = ({ capacityTrigger }) => {
+  const { currentUser } = useRole();
   const [capacity, setCapacity] = useState({
-    capacityKg: 50,
-    currentStorageUsedKg: 35,
-    foodPreferences: ['Veg Only', 'Cooked Meals Accepted'],
-    percentageUsed: 70,
+    name: currentUser?.name || '',
+    capacityKg: currentUser?.shelterDetails?.capacityKg ?? 50,
+    currentStorageUsedKg: currentUser?.shelterDetails?.currentStorageUsedKg ?? (currentUser ? 0 : 35),
+    foodPreferences: currentUser?.shelterDetails?.foodPreferences?.length > 0
+      ? currentUser.shelterDetails.foodPreferences
+      : ['Veg Only', 'Cooked Meals Accepted'],
+    percentageUsed: currentUser
+      ? Math.min(100, Math.round(((currentUser?.shelterDetails?.currentStorageUsedKg ?? 0) / (currentUser?.shelterDetails?.capacityKg || 50)) * 100))
+      : 70,
   });
 
   useEffect(() => {
@@ -22,7 +29,7 @@ const CapacityBar = ({ capacityTrigger }) => {
       }
     };
     fetchCapacity();
-  }, [capacityTrigger]);
+  }, [capacityTrigger, currentUser]);
 
   return (
     <div className="bg-white rounded-3xl p-6 sm:p-8 border border-warm-border shadow-card mb-10">
@@ -38,7 +45,7 @@ const CapacityBar = ({ capacityTrigger }) => {
               Together We Feed • Stronger Communities
             </div>
             <h2 className="font-display font-black text-2xl sm:text-3xl text-forest mt-0.5">
-              Shelter Capacity
+              {capacity.name ? `${capacity.name} Capacity` : 'Shelter Capacity'}
             </h2>
 
             {/* Refrigerator Storage Bar */}
@@ -49,7 +56,7 @@ const CapacityBar = ({ capacityTrigger }) => {
                   <span>Current Refrigeration Storage</span>
                 </span>
                 <span className="font-mono text-sage-700">
-                  <strong className="text-forest text-base">{capacity.currentStorageUsedKg}kg</strong> / {capacity.capacityKg}kg Used
+                  <strong className="text-forest text-base">{capacity.currentStorageUsedKg ?? 0}kg</strong> / {capacity.capacityKg || 50}kg Used
                 </span>
               </div>
 
@@ -57,14 +64,14 @@ const CapacityBar = ({ capacityTrigger }) => {
               <div className="w-full bg-sage-100 rounded-full h-3 overflow-hidden p-0.5 border border-sage-200">
                 <div
                   className="bg-sage-400 h-full rounded-full transition-all duration-700"
-                  style={{ width: `${Math.min(100, capacity.percentageUsed)}%` }}
+                  style={{ width: `${Math.min(100, Math.max(0, capacity.percentageUsed ?? 0))}%` }}
                 />
               </div>
 
               <div className="flex justify-between items-center text-[11px] font-semibold text-forest/50 mt-1.5">
                 <span>0 kg</span>
-                <span className="text-sage-700 font-bold">{capacity.percentageUsed}% Used</span>
-                <span>{capacity.capacityKg} kg Max</span>
+                <span className="text-sage-700 font-bold">{capacity.percentageUsed ?? 0}% Used</span>
+                <span>{capacity.capacityKg || 50} kg Max</span>
               </div>
             </div>
           </div>

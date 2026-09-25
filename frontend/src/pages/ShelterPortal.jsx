@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import CapacityBar from '../components/ShelterComponents/CapacityBar.jsx';
 import OfferCard from '../components/ShelterComponents/OfferCard.jsx';
-import { Leaf, Users, Heart, Globe, Sparkles } from 'lucide-react';
+import { Leaf, Users, Heart, Globe, Sparkles, Package } from 'lucide-react';
 import apiClient from '../services/apiClient';
 
 const ShelterPortal = () => {
   const [offers, setOffers] = useState([]);
+  const [showDemoOffers, setShowDemoOffers] = useState(false);
   const [capacityTrigger, setCapacityTrigger] = useState(0);
 
   const fallbackOffers = [
@@ -74,14 +75,14 @@ const ShelterPortal = () => {
   const fetchOffers = async () => {
     try {
       const res = await apiClient.get('/shelters/incoming-offers');
-      if (res.data.success && res.data.offers?.length > 0) {
+      if (res.data.success && res.data.offers && res.data.offers.length > 0) {
         setOffers(res.data.offers);
       } else {
-        setOffers(fallbackOffers);
+        setOffers([]);
       }
     } catch (err) {
-      console.warn('Using fallback shelter offers:', err.message);
-      setOffers(fallbackOffers);
+      console.warn('Could not fetch shelter offers:', err.message);
+      setOffers([]);
     }
   };
 
@@ -91,6 +92,7 @@ const ShelterPortal = () => {
 
   const handleOfferUpdated = () => {
     setCapacityTrigger((prev) => prev + 1);
+    fetchOffers();
   };
 
   return (
@@ -118,16 +120,56 @@ const ShelterPortal = () => {
         </div>
       </div>
 
-      {/* 3. 3x2 Grid of Matched Food Offer Cards */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-        {offers.map((offer) => (
-          <OfferCard
-            key={offer._id || offer.matchId}
-            offer={offer}
-            onOfferUpdated={handleOfferUpdated}
-          />
-        ))}
-      </div>
+      {/* 3. 3x2 Grid of Matched Food Offer Cards or Clean Empty State */}
+      {offers.length === 0 && !showDemoOffers ? (
+        <div className="bg-white rounded-3xl p-8 sm:p-12 border border-warm-border shadow-card text-center max-w-2xl mx-auto my-8">
+          <div className="w-16 h-16 rounded-3xl bg-sage-50 border border-sage-200 text-sage-600 flex items-center justify-center mx-auto mb-4">
+            <Package className="w-8 h-8" />
+          </div>
+          <h3 className="font-display font-black text-2xl text-forest mb-2">
+            No Incoming Matched Offers Right Now
+          </h3>
+          <p className="text-xs sm:text-sm text-forest/70 max-w-md mx-auto mb-6 leading-relaxed">
+            Your intake depot is all set up! When nearby food businesses post surplus donations that match your storage capacity and dietary criteria, they will automatically appear here for instant acceptance.
+          </p>
+          <button
+            type="button"
+            onClick={() => setShowDemoOffers(true)}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-forest text-white font-bold text-xs hover:bg-forest/90 transition-all shadow-sm"
+          >
+            <Sparkles className="w-4 h-4 text-sunburst-400" />
+            <span>Preview Sample Matched Offers (Demo)</span>
+          </button>
+        </div>
+      ) : (
+        <>
+          {showDemoOffers && offers.length === 0 && (
+            <div className="mb-6 p-4 bg-amber-50/90 border border-sunburst-200 rounded-2xl flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs font-bold text-amber-900">
+                <Sparkles className="w-4 h-4 text-sunburst-600 shrink-0" />
+                <span>Showing Sample Incoming Offers (Interactive Demo Preview)</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowDemoOffers(false)}
+                className="text-xs font-bold text-amber-800 underline hover:text-amber-950 ml-4 shrink-0"
+              >
+                Hide Demo
+              </button>
+            </div>
+          )}
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {(offers.length > 0 ? offers : fallbackOffers).map((offer) => (
+              <OfferCard
+                key={offer._id || offer.matchId}
+                offer={offer}
+                onOfferUpdated={handleOfferUpdated}
+              />
+            ))}
+          </div>
+        </>
+      )}
 
       {/* 4. Bottom Section: Every Donation Builds a Healthier Community */}
       <div className="mt-16 pt-10 border-t border-warm-border text-center">

@@ -9,7 +9,14 @@ import Donation from '../models/Donation.js';
  */
 export const getIncomingOffers = async (req, res, next) => {
   try {
-    const shelter = (await User.findOne({ role: 'shelter' })) || (await User.findOne());
+    let shelter = null;
+    if (req.user && req.user.role === 'shelter') {
+      shelter = req.user;
+    } else if (req.query.shelterId) {
+      shelter = await User.findById(req.query.shelterId);
+    } else {
+      shelter = (await User.findOne({ role: 'shelter' })) || (await User.findOne());
+    }
 
     const matches = await Match.find({
       status: { $in: ['offered', 'accepted', 'volunteer_assigned'] },
@@ -164,15 +171,25 @@ export const respondToOffer = async (req, res, next) => {
  */
 export const getShelterCapacity = async (req, res, next) => {
   try {
-    const shelter = (await User.findOne({ role: 'shelter' })) || (await User.findOne());
+    let shelter = null;
+    if (req.user && req.user.role === 'shelter') {
+      shelter = req.user;
+    } else if (req.query.shelterId) {
+      shelter = await User.findById(req.query.shelterId);
+    } else {
+      shelter = await User.findOne({ role: 'shelter' });
+    }
+
+    const capacityKg = shelter?.shelterDetails?.capacityKg || 50;
+    const currentStorageUsedKg = shelter?.shelterDetails?.currentStorageUsedKg ?? (req.user ? 0 : 35);
+    const percentageUsed = Math.min(100, Math.round((currentStorageUsedKg / (capacityKg || 1)) * 100));
+
     res.json({
       success: true,
-      capacityKg: shelter?.shelterDetails?.capacityKg || 50,
-      currentStorageUsedKg: shelter?.shelterDetails?.currentStorageUsedKg || 35,
+      capacityKg,
+      currentStorageUsedKg,
       foodPreferences: shelter?.shelterDetails?.foodPreferences || ['Veg Only', 'Cooked Meals Accepted'],
-      percentageUsed: Math.round(
-        ((shelter?.shelterDetails?.currentStorageUsedKg || 35) / (shelter?.shelterDetails?.capacityKg || 50)) * 100
-      ),
+      percentageUsed,
     });
   } catch (error) {
     next(error);
@@ -182,9 +199,10 @@ export const getShelterCapacity = async (req, res, next) => {
 export const updateShelterCapacity = async (req, res, next) => {
   try {
     const { capacityKg, currentStorageUsedKg, foodPreferences } = req.body;
-    const shelter = (await User.findOne({ role: 'shelter' })) || (await User.findOne());
+    let shelter = (req.user && req.user.role === 'shelter') ? req.user : ((await User.findOne({ role: 'shelter' })) || (await User.findOne()));
 
-    if (shelter && shelter.shelterDetails) {
+    if (shelter) {
+      shelter.shelterDetails = shelter.shelterDetails || {};
       if (capacityKg !== undefined) shelter.shelterDetails.capacityKg = capacityKg;
       if (currentStorageUsedKg !== undefined) shelter.shelterDetails.currentStorageUsedKg = currentStorageUsedKg;
       if (foodPreferences !== undefined) shelter.shelterDetails.foodPreferences = foodPreferences;

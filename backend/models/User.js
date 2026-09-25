@@ -29,16 +29,16 @@ const userSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
-      default: '+91 98765 43210',
+      default: '',
     },
     organizationType: {
       type: String,
       enum: ['Restaurant', 'Bakery', 'Supermarket', 'Cafeteria', 'Shelter', 'FoodBank', 'Individual', 'Other'],
-      default: 'Restaurant',
+      default: 'Individual',
     },
     fssaiLicense: {
       type: String,
-      default: 'FSSAI-DEL-2026-98104',
+      default: '',
     },
     isVerified: {
       type: Boolean,
@@ -51,7 +51,7 @@ const userSchema = new mongoose.Schema(
     location: {
       address: {
         type: String,
-        default: '123, Green Park, Sector 12, New Delhi - 110016',
+        default: '',
       },
       coordinates: {
         lat: { type: Number, default: 28.5582 },
@@ -66,7 +66,7 @@ const userSchema = new mongoose.Schema(
       },
       currentStorageUsedKg: {
         type: Number,
-        default: 35,
+        default: 0,
       },
       foodPreferences: {
         type: [String],
@@ -74,30 +74,30 @@ const userSchema = new mongoose.Schema(
       },
       contactPerson: {
         type: String,
-        default: 'Shelter Coordinator',
+        default: '',
       },
     },
     // Specific metadata for Volunteers
     volunteerDetails: {
       vehicleType: {
         type: String,
-        default: 'Scooter / Mini Van',
+        default: 'Two-Wheeler / Scooter',
       },
       completedRescuesCount: {
         type: Number,
-        default: 12,
+        default: 0,
       },
       totalKgDelivered: {
         type: Number,
-        default: 186,
+        default: 0,
       },
       communitiesServed: {
         type: Number,
-        default: 8,
+        default: 0,
       },
       certificatesEarned: {
         type: Number,
-        default: 3,
+        default: 0,
       },
       isAvailableNow: {
         type: Boolean,

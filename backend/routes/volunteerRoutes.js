@@ -7,8 +7,11 @@ import {
   getVolunteerStats,
   reportVehicleBreakdown,
 } from '../controllers/volunteerController.js';
+import { optionalProtect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
+
+router.use(optionalProtect);
 
 router.get('/jobs', getAvailableJobs);
 router.get('/active-job', getActiveRescueJob);

@@ -5,8 +5,11 @@ import {
   getShelterCapacity,
   updateShelterCapacity,
 } from '../controllers/shelterController.js';
+import { optionalProtect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
+
+router.use(optionalProtect);
 
 router.get('/incoming-offers', getIncomingOffers);
 router.post('/offers/:id/respond', respondToOffer);

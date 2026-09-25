@@ -12,6 +12,33 @@ const generateToken = (id) => {
   });
 };
 
+export const formatUserResponse = (user) => ({
+  _id: user._id,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  phone: user.phone || '',
+  avatar: user.avatar || '',
+  organizationType: user.organizationType || '',
+  fssaiLicense: user.fssaiLicense || '',
+  isVerified: user.isVerified ?? true,
+  location: user.location || { address: '', coordinates: { lat: 28.5582, lng: 77.2023 } },
+  shelterDetails: user.shelterDetails || {
+    capacityKg: 50,
+    currentStorageUsedKg: 0,
+    foodPreferences: ['Veg Only', 'Cooked Meals Accepted'],
+    contactPerson: '',
+  },
+  volunteerDetails: user.volunteerDetails || {
+    vehicleType: 'Two-Wheeler / Scooter',
+    completedRescuesCount: 0,
+    totalKgDelivered: 0,
+    communitiesServed: 0,
+    certificatesEarned: 0,
+    isAvailableNow: true,
+  },
+});
+
 /**
  * @desc   Get list of all users or filter by role
  * @route  GET /api/users
@@ -98,8 +125,22 @@ export const registerUser = async (req, res, next) => {
       password,
       role: role || 'donor',
       organizationType: organizationType || (role === 'shelter' ? 'Shelter' : role === 'volunteer' ? 'Individual' : 'Restaurant'),
-      phone: phone || '+91 98765 43210',
-      location: { address: address || 'New Delhi' },
+      phone: phone || '',
+      location: { address: address || '' },
+      shelterDetails: {
+        capacityKg: 50,
+        currentStorageUsedKg: 0,
+        foodPreferences: ['Veg Only', 'Cooked Meals Accepted'],
+        contactPerson: '',
+      },
+      volunteerDetails: {
+        vehicleType: 'Two-Wheeler / Scooter',
+        completedRescuesCount: 0,
+        totalKgDelivered: 0,
+        communitiesServed: 0,
+        certificatesEarned: 0,
+        isAvailableNow: true,
+      },
     });
 
     const token = generateToken(user._id);
@@ -107,12 +148,7 @@ export const registerUser = async (req, res, next) => {
     res.status(201).json({
       success: true,
       token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+      user: formatUserResponse(user),
     });
   } catch (error) {
     next(error);
@@ -139,12 +175,7 @@ export const loginUser = async (req, res, next) => {
       res.json({
         success: true,
         token,
-        user: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-        },
+        user: formatUserResponse(user),
       });
     } else {
       res.status(401).json({ success: false, message: 'Invalid email or password' });
@@ -167,7 +198,7 @@ export const getUserProfile = async (req, res, next) => {
     }
     res.json({
       success: true,
-      user,
+      user: formatUserResponse(user),
     });
   } catch (error) {
     next(error);
@@ -223,7 +254,7 @@ export const updateUserProfile = async (req, res, next) => {
     res.json({
       success: true,
       message: 'Profile updated successfully!',
-      user: updatedUser,
+      user: formatUserResponse(updatedUser),
     });
   } catch (error) {
     next(error);
@@ -307,12 +338,7 @@ export const verifyOtp = async (req, res, next) => {
       success: true,
       message: 'OTP verified successfully! Logged in.',
       token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+      user: formatUserResponse(user),
     });
   } catch (error) {
     next(error);
@@ -347,13 +373,7 @@ export const googleLoginUser = async (req, res, next) => {
     res.json({
       success: true,
       token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        avatar: user.avatar,
-      },
+      user: formatUserResponse(user),
       message: `Successfully authenticated with Google as ${user.name}!`,
     });
   } catch (error) {

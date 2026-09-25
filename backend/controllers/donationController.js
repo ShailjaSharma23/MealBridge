@@ -22,7 +22,9 @@ export const createDonation = async (req, res, next) => {
     } = req.body;
 
     let donor = null;
-    if (donorId) {
+    if (req.user) {
+      donor = req.user;
+    } else if (donorId) {
       donor = await User.findById(donorId);
     }
     if (!donor) {
@@ -30,7 +32,7 @@ export const createDonation = async (req, res, next) => {
     }
     if (!donor) {
       donor = await User.create({
-        name: 'Bistro 42',
+        name: req.body.donorName || 'Bistro 42',
         email: 'bistro42@mealbridge.org',
         password: 'password123',
         role: 'donor',
@@ -156,9 +158,26 @@ export const getAllDonations = async (req, res, next) => {
  */
 export const getActiveDonorDonation = async (req, res, next) => {
   try {
-    let donation = await Donation.findOne({
-      status: { $in: ['posted', 'matched', 'volunteer_assigned', 'picked_up'] },
-    })
+    const isDemo = req.query.demo === 'true';
+    let query = {
+      status: { $in: ['posted', 'matched', 'volunteer_assigned', 'picked_up', 're_dispatch_needed', 'relay_needed'] },
+    };
+
+    if (req.user) {
+      query.donor = req.user._id;
+    } else if (req.query.donorId) {
+      query.donor = req.query.donorId;
+    } else if (!isDemo) {
+      // Unauthenticated visitor / brand new donor with 0 donations - return clean empty state
+      return res.json({
+        success: true,
+        donation: null,
+        trackerSteps: [],
+        isNewUser: true,
+      });
+    }
+
+    let donation = await Donation.findOne(query)
       .populate('donor', 'name location')
       .populate('assignedShelter', 'name location')
       .populate('assignedVolunteer', 'name phone volunteerDetails')
@@ -166,8 +185,20 @@ export const getActiveDonorDonation = async (req, res, next) => {
       .sort({ updatedAt: -1 });
 
     if (!donation) {
-      donation = await Donation.findOne().populate('assignedShelter');
+      if (isDemo) {
+        donation = await Donation.findOne().populate('assignedShelter');
+      } else {
+        return res.json({
+          success: true,
+          donation: null,
+          trackerSteps: [],
+          isNewUser: true,
+        });
+      }
     }
+
+    const shelterName = donation?.assignedShelter?.name || 'Local Verified Shelter';
+    const volunteerName = donation?.assignedVolunteer?.name || 'Nearby Community Volunteer';
 
     res.json({
       success: true,
@@ -176,31 +207,44 @@ export const getActiveDonorDonation = async (req, res, next) => {
         {
           step: 1,
           title: 'Posted',
-          description: 'Your donation has been posted successfully.',
-          timestamp: donation?.trackingTimestamps?.postedAt || 'Today, 2:34 PM',
+          description: 'Your surplus food donation has been logged into the dispatch network.',
+          timestamp: donation?.trackingTimestamps?.postedAt
+            ? new Date(donation.trackingTimestamps.postedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            : 'Just Now',
           status: 'completed',
         },
         {
           step: 2,
-          title: `Matched with ${donation?.assignedShelter?.name || 'Hope Shelter'}`,
-          description: `Your food has been matched with ${donation?.assignedShelter?.name || 'Hope Shelter'} (2.4 km away).`,
-          timestamp: donation?.trackingTimestamps?.matchedAt || 'Today, 2:37 PM',
-          status: 'live',
+          title: `Matched with ${shelterName}`,
+          description: `Direct match accepted by ${shelterName} based on capacity & dietary safety.`,
+          timestamp: donation?.trackingTimestamps?.matchedAt
+            ? new Date(donation.trackingTimestamps.matchedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            : 'Matched',
+          status: donation?.status === 'matched' ? 'live' : 'completed',
         },
         {
           step: 3,
           title: 'Volunteer Assigned',
-          description: donation?.assignedVolunteer?.name
-            ? `${donation.assignedVolunteer.name} is on their way to pick up your donation.`
-            : 'A volunteer is on their way to pick up your donation.',
-          timestamp: donation?.trackingTimestamps?.volunteerAssignedAt,
-          status: donation?.status === 'volunteer_assigned' || donation?.status === 'picked_up' || donation?.status === 'delivered' ? 'completed' : 'pending',
+          description: donation?.assignedVolunteer
+            ? `${volunteerName} is en route for pickup.`
+            : 'Dispatching nearest available courier for contactless food pickup.',
+          timestamp: donation?.trackingTimestamps?.volunteerAssignedAt
+            ? new Date(donation.trackingTimestamps.volunteerAssignedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            : 'Pending Dispatch',
+          status:
+            donation?.status === 'volunteer_assigned' || donation?.status === 'picked_up'
+              ? 'live'
+              : donation?.status === 'delivered'
+              ? 'completed'
+              : 'pending',
         },
         {
           step: 4,
           title: 'Delivered',
-          description: 'Your food will soon reach the shelter and make a difference!',
-          timestamp: donation?.trackingTimestamps?.deliveredAt,
+          description: 'Safe handoff at shelter. Fresh meals distributed to community members.',
+          timestamp: donation?.trackingTimestamps?.deliveredAt
+            ? new Date(donation.trackingTimestamps.deliveredAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            : 'Pending Handover',
           status: donation?.status === 'delivered' ? 'completed' : 'pending',
         },
       ],
@@ -220,17 +264,23 @@ export const getDonationCertificate = async (req, res, next) => {
     let donation = null;
     if (req.params.id && req.params.id !== 'latest') {
       donation = await Donation.findById(req.params.id).populate('donor').populate('assignedShelter');
-    } else {
+    } else if (req.user) {
+      donation = await Donation.findOne({ donor: req.user._id }).populate('donor').populate('assignedShelter').sort({ createdAt: -1 });
+    }
+
+    if (!donation) {
       donation = await Donation.findOne().populate('donor').populate('assignedShelter');
     }
+
+    const donorDisplayName = req.user?.name || donation?.donorName || 'Registered Food Partner';
 
     res.json({
       success: true,
       certificate: {
         certificateNumber: `MB-ESG-2026-${Math.floor(1000 + Math.random() * 9000)}`,
         issueDate: new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }),
-        donorName: donation?.donorName || 'Bistro 42',
-        recipientShelter: donation?.assignedShelter?.name || 'Hope Shelter',
+        donorName: donorDisplayName,
+        recipientShelter: donation?.assignedShelter?.name || 'Hope Shelter NGO',
         foodCategory: donation?.category || 'Cooked Meals',
         quantityRescuedKg: donation?.quantityKg || 15,
         approxMealsProvided: donation?.servingsCount || 38,

@@ -92,45 +92,74 @@ export const getAvailableJobs = async (req, res, next) => {
  */
 export const getActiveRescueJob = async (req, res, next) => {
   try {
-    let match = await Match.findOne({ jobCode: 'JOB-104' }).populate('donation');
+    const isDemo = req.query.demo === 'true';
+    let match = null;
+
+    if (req.user) {
+      match = await Match.findOne({
+        volunteer: req.user._id,
+        status: { $in: ['volunteer_assigned', 'in_transit', 'relay_needed', 're_dispatch_needed'] },
+      }).populate('donation');
+    } else if (req.query.volunteerId) {
+      match = await Match.findOne({
+        volunteer: req.query.volunteerId,
+        status: { $in: ['volunteer_assigned', 'in_transit', 'relay_needed', 're_dispatch_needed'] },
+      }).populate('donation');
+    }
+
+    if (!match && isDemo) {
+      match = await Match.findOne({ jobCode: 'JOB-104' }).populate('donation');
+      if (!match) match = await Match.findOne().populate('donation');
+    }
+
     if (!match) {
-      match = await Match.findOne().populate('donation');
+      return res.json({
+        success: true,
+        activeJob: null,
+        message: 'No active rescue mission currently claimed.',
+      });
     }
 
     const don = match?.donation || {};
+    let diffMs = don.expiresAt ? new Date(don.expiresAt) - new Date() : 2.5 * 60 * 60 * 1000;
+    if (diffMs <= 0) {
+      diffMs = Math.max(1.2 * 60 * 60 * 1000, ((don.expiryHours || 3) * 60 * 60 * 1000) * 0.7);
+    }
+    const hoursRemaining = Math.max(0.5, (diffMs / (1000 * 60 * 60))).toFixed(1);
 
     res.json({
       success: true,
       activeJob: {
         _id: match?._id,
-        jobCode: match?.jobCode || 'JOB-104',
-        isUrgent: true,
+        jobCode: match?.jobCode || 'JOB-DISPATCH',
+        isUrgent: match?.isUrgent || hoursRemaining < 2,
         pickup: {
           name: match?.pickupLocation?.name || 'Bistro 42',
           address: match?.pickupLocation?.address || '123, Green Park, Sector 12, New Delhi',
           distance: '1.2 km away',
-          lat: 28.5582,
-          lng: 77.2023,
+          lat: match?.pickupLocation?.lat || 28.5582,
+          lng: match?.pickupLocation?.lng || 77.2023,
         },
         dropoff: {
           name: match?.dropoffLocation?.name || 'Hope Shelter',
           address: match?.dropoffLocation?.address || 'Community Hall 4, Lajpat Nagar, New Delhi',
           distance: '2.5 km away',
-          lat: 28.5677,
-          lng: 77.2433,
+          lat: match?.dropoffLocation?.lat || 28.5677,
+          lng: match?.dropoffLocation?.lng || 77.2433,
         },
         food: {
           weight: `${don.quantityKg || 15} kg`,
-          category: 'Cooked Food',
+          category: don.category || 'Cooked Food',
           name: don.foodName || 'Cooked Meals',
-          hoursRemaining: '2.5 hours remaining',
+          hoursRemaining: `${hoursRemaining} hours remaining`,
         },
         routeCoordinates: [
-          { lat: 28.5582, lng: 77.2023, label: 'Pickup: Bistro 42' },
+          { lat: match?.pickupLocation?.lat || 28.5582, lng: match?.pickupLocation?.lng || 77.2023, label: `Pickup: ${match?.pickupLocation?.name || 'Donor'}` },
           { lat: 28.562, lng: 77.221, label: 'Waypoint: Ring Road' },
-          { lat: 28.5677, lng: 77.2433, label: 'Dropoff: Hope Shelter' },
+          { lat: match?.dropoffLocation?.lat || 28.5677, lng: match?.dropoffLocation?.lng || 77.2433, label: `Dropoff: ${match?.dropoffLocation?.name || 'Shelter'}` },
         ],
         status: match?.status || 'volunteer_assigned',
+        breakdownIncident: match?.breakdownIncident || null,
       },
     });
   } catch (error) {
@@ -150,7 +179,7 @@ export const claimRescueJob = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Rescue job not found' });
     }
 
-    const volunteer = (await User.findOne({ role: 'volunteer' })) || (await User.findOne());
+    const volunteer = req.user || (await User.findOne({ role: 'volunteer' })) || (await User.findOne());
     match.volunteer = volunteer._id;
 
     // If this was an emergency relay where food was already picked up, courier resumes transit
@@ -217,7 +246,7 @@ export const reportVehicleBreakdown = async (req, res, next) => {
         address: 'Midpoint Breakdown: Outer Ring Road Near AIIMS, New Delhi',
       },
       notes: notes || 'Rider reported breakdown. Emergency re-dispatch initiated.',
-      originalVolunteerName: 'Courier Volunteer',
+      originalVolunteerName: req.user?.name || 'Courier Volunteer',
     };
 
     match.isUrgent = true;
@@ -288,11 +317,16 @@ export const completeDelivery = async (req, res, next) => {
     }
 
     // Update volunteer stats
-    const volunteer = await User.findById(match.volunteer);
-    if (volunteer && volunteer.volunteerDetails) {
-      volunteer.volunteerDetails.completedRescuesCount += 1;
-      volunteer.volunteerDetails.totalKgDelivered += match.donation?.quantityKg || 10;
-      await volunteer.save();
+    const volunteerId = match.volunteer || req.user?._id;
+    if (volunteerId) {
+      const volunteer = await User.findById(volunteerId);
+      if (volunteer) {
+        volunteer.volunteerDetails = volunteer.volunteerDetails || {};
+        volunteer.volunteerDetails.completedRescuesCount = (volunteer.volunteerDetails.completedRescuesCount || 0) + 1;
+        volunteer.volunteerDetails.totalKgDelivered = (volunteer.volunteerDetails.totalKgDelivered || 0) + (match.donation?.quantityKg || 10);
+        volunteer.volunteerDetails.communitiesServed = Math.max(1, (volunteer.volunteerDetails.communitiesServed || 0) + 1);
+        await volunteer.save();
+      }
     }
 
     // Automatically email Section 80G Tax & ESG Certificate to donor via Brevo
@@ -313,22 +347,32 @@ export const completeDelivery = async (req, res, next) => {
 };
 
 /**
- * @desc   Get volunteer stats (matching UI: 12 jobs, 186kg delivered, 8 communities, 3 certificates)
+ * @desc   Get volunteer stats (returns real user stats or onboarding zero-state)
  * @route  GET /api/volunteers/stats
  * @access Public / Volunteer
  */
 export const getVolunteerStats = async (req, res, next) => {
   try {
-    const volunteer = (await User.findOne({ role: 'volunteer' })) || (await User.findOne());
+    let volunteer = null;
+    if (req.user && req.user.role === 'volunteer') {
+      volunteer = req.user;
+    } else if (req.query.volunteerId) {
+      volunteer = await User.findById(req.query.volunteerId);
+    } else if (req.query.demo === 'true') {
+      volunteer = await User.findOne({ role: 'volunteer' });
+    }
+
+    const hasUserSession = Boolean(req.user);
 
     res.json({
       success: true,
       stats: {
-        completedRescuesCount: volunteer?.volunteerDetails?.completedRescuesCount || 12,
-        totalKgDelivered: volunteer?.volunteerDetails?.totalKgDelivered || 186,
-        communitiesServed: volunteer?.volunteerDetails?.communitiesServed || 8,
-        certificatesEarned: volunteer?.volunteerDetails?.certificatesEarned || 3,
-        vehicleType: volunteer?.volunteerDetails?.vehicleType || 'Scooter / Mini Van',
+        completedRescuesCount: volunteer?.volunteerDetails?.completedRescuesCount ?? (hasUserSession ? 0 : 12),
+        totalKgDelivered: volunteer?.volunteerDetails?.totalKgDelivered ?? (hasUserSession ? 0 : 186),
+        communitiesServed: volunteer?.volunteerDetails?.communitiesServed ?? (hasUserSession ? 0 : 8),
+        certificatesEarned: volunteer?.volunteerDetails?.certificatesEarned ?? (hasUserSession ? 0 : 3),
+        vehicleType: volunteer?.volunteerDetails?.vehicleType || 'Two-Wheeler / Scooter',
+        isNewUser: hasUserSession && !(volunteer?.volunteerDetails?.completedRescuesCount > 0),
       },
     });
   } catch (error) {

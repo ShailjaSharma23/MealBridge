@@ -2,32 +2,38 @@ import React from 'react';
 import { Award, PackageCheck, Users, ShieldCheck } from 'lucide-react';
 
 const VolunteerStats = ({ stats }) => {
+  const completed = stats?.completedRescuesCount ?? 0;
+  const kgDelivered = stats?.totalKgDelivered ?? 0;
+  const sheltersServed = stats?.communitiesServed ?? 0;
+  const certs = stats?.certificatesEarned ?? 0;
+  const isNew = stats?.isNewUser || completed === 0;
+
   const statItems = [
     {
       label: 'Deliveries Completed',
-      value: stats?.completedRescuesCount || 12,
-      sub: 'All On-Time',
+      value: completed,
+      sub: completed === 0 ? 'Ready for Mission 1' : 'All On-Time',
       icon: PackageCheck,
       color: 'bg-emerald-50 text-emerald-600 border-emerald-200',
     },
     {
       label: 'Food Rescued',
-      value: `${stats?.totalKgDelivered || 186} kg`,
-      sub: 'Surplus Saved',
+      value: `${kgDelivered} kg`,
+      sub: kgDelivered === 0 ? 'Start Delivering' : 'Surplus Saved',
       icon: Award,
       color: 'bg-amber-50 text-amber-600 border-amber-200',
     },
     {
       label: 'Shelters Served',
-      value: stats?.communitiesServed || 8,
+      value: sheltersServed,
       sub: 'Neighborhood Centers',
       icon: Users,
       color: 'bg-sage-50 text-sage-600 border-sage-200',
     },
     {
       label: 'Impact Certificates',
-      value: stats?.certificatesEarned || 3,
-      sub: 'Verified Volunteer',
+      value: certs,
+      sub: certs === 0 ? 'Complete 1 to Unlock' : 'Verified Volunteer',
       icon: ShieldCheck,
       color: 'bg-teal-50 text-teal-600 border-teal-200',
     },
@@ -45,7 +51,14 @@ const VolunteerStats = ({ stats }) => {
           </h3>
         </div>
         <div className="text-xs font-bold text-forest/60">
-          Rank: <span className="text-sunburst-600 font-extrabold">🌟 Master Courier</span>
+          Rank:{' '}
+          <span className="text-sunburst-600 font-extrabold">
+            {completed >= 10
+              ? '🌟 Master Courier'
+              : completed >= 3
+              ? '⚡ Active Volunteer'
+              : '🌱 Rookie Courier'}
+          </span>
         </div>
       </div>
 

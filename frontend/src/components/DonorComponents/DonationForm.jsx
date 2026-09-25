@@ -1,18 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Camera, Send, ShieldCheck, Sparkles, Clock, Utensils, Compass, Loader2, CheckCircle2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import apiClient from '../../services/apiClient';
+import { useRole } from '../../context/RoleContext';
 
 const DonationForm = ({ onDonationCreated }) => {
+  const { currentUser } = useRole();
+
   const [formData, setFormData] = useState({
-    foodName: 'Vegetable Curry & Rice',
+    foodName: '',
     category: 'Cooked Meals',
-    quantityKg: 15,
+    quantityKg: '',
     expiryHours: 3,
-    pickupAddress: '123, Green Park, Sector 12, New Delhi - 110016',
-    pickupCoordinates: { lat: 28.5582, lng: 77.2023 },
+    pickupAddress: currentUser?.location?.address || '123, Green Park, Sector 12, New Delhi - 110016',
+    pickupCoordinates: currentUser?.location?.coordinates || { lat: 28.5582, lng: 77.2023 },
     dietaryType: 'Veg Only',
   });
+
+  useEffect(() => {
+    if (currentUser?.location?.address) {
+      setFormData((prev) => ({
+        ...prev,
+        pickupAddress: currentUser.location.address,
+        pickupCoordinates: currentUser.location.coordinates || prev.pickupCoordinates,
+      }));
+      setLocVerified(true);
+    }
+  }, [currentUser]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
@@ -109,7 +123,12 @@ const DonationForm = ({ onDonationCreated }) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await apiClient.post('/donations', formData);
+      const payload = {
+        ...formData,
+        donorId: currentUser?._id,
+        donorName: currentUser?.name || 'Partner Kitchen',
+      };
+      const res = await apiClient.post('/donations', payload);
       if (res.data.success) {
         confetti({
           particleCount: 80,
@@ -118,6 +137,11 @@ const DonationForm = ({ onDonationCreated }) => {
           colors: ['#8BA888', '#F59E0B', '#2D4E45'],
         });
         setSuccessMsg('🎉 Donation posted and matched with Hope Shelter in real-time!');
+        setFormData((prev) => ({
+          ...prev,
+          foodName: '',
+          quantityKg: '',
+        }));
         if (onDonationCreated) onDonationCreated(res.data.donation);
         setTimeout(() => setSuccessMsg(''), 5000);
       }

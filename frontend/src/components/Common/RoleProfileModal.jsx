@@ -35,50 +35,51 @@ const RoleProfileModal = ({ isOpen, onClose }) => {
   const [detectingLoc, setDetectingLoc] = useState(false);
   const [locVerified, setLocVerified] = useState(false);
 
-  // Form states initialized with role-specific defaults
+  // Form states initialized with clean role defaults
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '+91 98765 43210',
-    address: '123, Green Park, Sector 12, New Delhi - 110016',
+    phone: '',
+    address: '',
     coordinates: { lat: 28.5582, lng: 77.2023 },
     // Donor specific
     organizationType: 'Restaurant',
-    fssaiLicense: 'FSSAI-DEL-2026-98104',
+    fssaiLicense: '',
     // Shelter specific
     capacityKg: 50,
-    currentStorageUsedKg: 35,
+    currentStorageUsedKg: 0,
     foodPreferences: ['Veg Only', 'Cooked Meals Accepted'],
-    contactPerson: 'Priya Sharma (Intake Coordinator)',
+    contactPerson: '',
     // Volunteer specific
     vehicleType: 'Two-Wheeler / Scooter',
     isAvailableNow: true,
     // Milestones
-    rescuesCount: 12,
-    kgDelivered: 186,
-    badgesCount: 3,
+    rescuesCount: 0,
+    kgDelivered: 0,
+    badgesCount: 0,
   });
 
   useEffect(() => {
     if (currentUser) {
+      const isDemo = currentUser.isDemo || currentUser.email?.includes('demo');
       setFormData((prev) => ({
         ...prev,
-        name: currentUser.name || (currentRole === 'donor' ? 'Bistro 42' : currentRole === 'shelter' ? 'Hope Shelter NGO' : currentRole === 'volunteer' ? 'Manish Bhatt' : 'Guest User'),
-        email: currentUser.email || `${currentRole}@mealbridge.org`,
-        phone: currentUser.phone || prev.phone,
-        address: currentUser.location?.address || prev.address,
+        name: currentUser.name || (isDemo ? (currentRole === 'donor' ? 'Bistro 42' : currentRole === 'shelter' ? 'Hope Shelter NGO' : currentRole === 'volunteer' ? 'Manish Bhatt' : '') : ''),
+        email: currentUser.email || '',
+        phone: currentUser.phone || '',
+        address: currentUser.location?.address || '',
         coordinates: currentUser.location?.coordinates || prev.coordinates,
         organizationType: currentUser.organizationType || prev.organizationType,
-        fssaiLicense: currentUser.fssaiLicense || prev.fssaiLicense,
-        capacityKg: currentUser.shelterDetails?.capacityKg || prev.capacityKg,
-        currentStorageUsedKg: currentUser.shelterDetails?.currentStorageUsedKg || prev.currentStorageUsedKg,
-        foodPreferences: currentUser.shelterDetails?.foodPreferences || prev.foodPreferences,
-        contactPerson: currentUser.shelterDetails?.contactPerson || prev.contactPerson,
+        fssaiLicense: currentUser.fssaiLicense || '',
+        capacityKg: currentUser.shelterDetails?.capacityKg ?? 50,
+        currentStorageUsedKg: currentUser.shelterDetails?.currentStorageUsedKg ?? 0,
+        foodPreferences: currentUser.shelterDetails?.foodPreferences?.length > 0 ? currentUser.shelterDetails.foodPreferences : prev.foodPreferences,
+        contactPerson: currentUser.shelterDetails?.contactPerson || '',
         vehicleType: currentUser.volunteerDetails?.vehicleType || prev.vehicleType,
         isAvailableNow: currentUser.volunteerDetails?.isAvailableNow ?? prev.isAvailableNow,
-        rescuesCount: currentUser.volunteerDetails?.completedRescuesCount || prev.rescuesCount,
-        kgDelivered: currentUser.volunteerDetails?.totalKgDelivered || prev.kgDelivered,
-        badgesCount: currentUser.volunteerDetails?.certificatesEarned || prev.badgesCount,
+        rescuesCount: currentUser.volunteerDetails?.completedRescuesCount ?? 0,
+        kgDelivered: currentUser.volunteerDetails?.totalKgDelivered ?? 0,
+        badgesCount: currentUser.volunteerDetails?.certificatesEarned ?? 0,
       }));
     }
   }, [currentUser, currentRole, isOpen]);
@@ -418,6 +419,7 @@ const RoleProfileModal = ({ isOpen, onClose }) => {
                     type="text"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="e.g. +91 98765 43210"
                     className="w-full bg-warm border border-warm-border rounded-2xl pl-9 pr-4 py-2.5 text-xs font-semibold text-forest focus:outline-none focus:ring-2 focus:ring-sage-400"
                   />
                 </div>
@@ -501,6 +503,7 @@ const RoleProfileModal = ({ isOpen, onClose }) => {
                     type="text"
                     value={formData.contactPerson}
                     onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
+                    placeholder="e.g. Priya Sharma (Intake Coordinator)"
                     className="w-full bg-warm border border-warm-border rounded-2xl px-3.5 py-2.5 text-xs font-semibold text-forest focus:outline-none focus:ring-2 focus:ring-sage-400"
                   />
                 </div>
@@ -515,6 +518,7 @@ const RoleProfileModal = ({ isOpen, onClose }) => {
                       type="text"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      placeholder="e.g. +91 98765 43210"
                       className="w-full bg-warm border border-warm-border rounded-2xl pl-9 pr-4 py-2.5 text-xs font-semibold text-forest focus:outline-none focus:ring-2 focus:ring-sage-400"
                     />
                   </div>

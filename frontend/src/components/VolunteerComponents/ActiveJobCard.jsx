@@ -21,12 +21,50 @@ import confetti from 'canvas-confetti';
 import VolunteerMap from './VolunteerMap.jsx';
 import apiClient from '../../services/apiClient';
 
-const ActiveJobCard = ({ activeJob, onJobUpdated }) => {
+const ActiveJobCard = ({ activeJob, onJobUpdated, onPreviewDemo }) => {
   const [jobStep, setJobStep] = useState(
     activeJob?.status === 'delivered' ? 3 : activeJob?.status === 'volunteer_assigned' ? 1 : 0
   );
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
+
+  if (!activeJob) {
+    return (
+      <div className="bg-white rounded-3xl border border-warm-border p-6 sm:p-8 shadow-card mb-12 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="flex items-start sm:items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-sage-100 text-sage-700 flex items-center justify-center flex-shrink-0 shadow-xs">
+            <Truck className="w-7 h-7 text-sage-600" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-sage-600 uppercase tracking-wider">
+                Volunteer Dispatch Ready
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800">
+                Online & Available
+              </span>
+            </div>
+            <h2 className="font-display font-black text-xl sm:text-2xl text-forest mt-0.5">
+              No Active Delivery Assigned
+            </h2>
+            <p className="text-xs text-forest/70 mt-1 max-w-lg leading-relaxed">
+              You currently have no active mission claimed. Select an open rescue mission from the board below and tap <strong>Claim This Mission</strong> to activate turn-by-turn navigation.
+            </p>
+          </div>
+        </div>
+
+        {onPreviewDemo && (
+          <button
+            type="button"
+            onClick={onPreviewDemo}
+            className="btn-sage py-3 px-6 rounded-2xl text-xs font-bold shadow-xs hover:shadow-sm shrink-0 whitespace-nowrap self-stretch sm:self-auto text-center"
+          >
+            <span>Preview Active Route Demo (JOB-104)</span>
+          </button>
+        )}
+      </div>
+    );
+  }
 
   // Vehicle Malfunction State
   const [showBreakdownModal, setShowBreakdownModal] = useState(false);

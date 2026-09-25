@@ -76,35 +76,53 @@ const Navbar = () => {
           </nav>
 
           {/* Role Switcher & Auth Dropdown (Top Right) */}
-          <div className="relative">
-            <button
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-sage-400 text-white font-medium text-sm shadow-sm transition-all hover:bg-sage-500 active:scale-95"
-              aria-label="Switch User Profile Role"
-            >
-              <User className="w-4 h-4" />
-              <span>{currentRoleLabel}</span>
-              <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            {/* Dropdown Menu */}
-            {dropdownOpen && (
-              <div
-                className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-warm-border p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150"
+          <div className="flex items-center gap-2.5">
+            {!currentUser && (
+              <button
+                onClick={() => setAuthModalOpen(true)}
+                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-sage-300 text-forest text-xs font-bold hover:bg-sage-50 transition-colors shadow-xs"
               >
-                {/* Active User Information Card */}
-                {currentUser && (
-                  <div className="p-2.5 bg-warm rounded-xl mb-2 border border-warm-border">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-forest/50">Logged In User</span>
-                      <span className="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
-                        Verified
-                      </span>
+                <LogIn className="w-3.5 h-3.5 text-sage-600" />
+                <span>Sign In / Join</span>
+              </button>
+            )}
+
+            <div className="relative">
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className={`inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-full font-medium text-xs sm:text-sm shadow-sm transition-all active:scale-95 ${
+                  currentUser ? 'bg-forest text-white hover:bg-forest/90' : 'bg-sage-400 text-white hover:bg-sage-500'
+                }`}
+                aria-label="Switch User Profile Role"
+              >
+                <User className="w-4 h-4" />
+                <span>{currentUser ? currentUser.name : currentRoleLabel}</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Dropdown Menu */}
+              {dropdownOpen && (
+                <div
+                  className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-warm-border p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150"
+                >
+                  {/* Active User Information Card */}
+                  {currentUser ? (
+                    <div className="p-2.5 bg-warm rounded-xl mb-2 border border-warm-border">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-forest/50">Logged In User</span>
+                        <span className="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                          {currentUser.role.toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="text-xs font-bold text-forest truncate mt-0.5">{currentUser.name}</div>
+                      <div className="text-[11px] text-forest/60 truncate">{currentUser.email}</div>
                     </div>
-                    <div className="text-xs font-bold text-forest truncate mt-0.5">{currentUser.name}</div>
-                    <div className="text-[11px] text-forest/60 truncate">{currentUser.email}</div>
-                  </div>
-                )}
+                  ) : (
+                    <div className="p-2.5 bg-amber-50/70 rounded-xl mb-2 border border-amber-200">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-amber-800">Guest Visitor</div>
+                      <div className="text-xs text-forest/80 mt-0.5">Explore features or sign in for your personal dashboard.</div>
+                    </div>
+                  )}
 
                 {/* Profile Form Action */}
                 <div className="p-1 border-b border-warm-border space-y-1">
@@ -183,6 +201,7 @@ const Navbar = () => {
               </div>
             )}
           </div>
+        </div>
 
           {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center">

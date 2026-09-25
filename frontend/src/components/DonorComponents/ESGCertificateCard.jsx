@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Award, Leaf, Users, ShieldCheck, Download, X, CheckCircle, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import apiClient from '../../services/apiClient';
+import { useRole } from '../../context/RoleContext';
 
 const ESGCertificateCard = () => {
+  const { currentUser } = useRole();
   const [modalOpen, setModalOpen] = useState(false);
   const [certData, setCertData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -20,15 +22,18 @@ const ESGCertificateCard = () => {
     try {
       const res = await apiClient.get('/donations/certificate/latest');
       if (res.data.success) {
-        setCertData(res.data.certificate);
+        setCertData({
+          ...res.data.certificate,
+          donorName: currentUser?.name || res.data.certificate.donorName || 'Partner Kitchen',
+        });
       }
     } catch (err) {
       console.warn('Using default certificate data:', err.message);
       setCertData({
-        certificateNumber: 'MB-ESG-2026-8083',
-        issueDate: 'September 25, 2026',
-        donorName: 'Bistro 42',
-        recipientShelter: 'Hope Shelter',
+        certificateNumber: `MB-ESG-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+        issueDate: new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }),
+        donorName: currentUser?.name || 'Partner Kitchen',
+        recipientShelter: 'Hope Shelter NGO',
         foodCategory: 'Cooked Meals',
         quantityRescuedKg: 15,
         approxMealsProvided: 38,

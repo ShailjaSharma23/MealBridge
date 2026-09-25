@@ -81,11 +81,11 @@ const VolunteerPortal = () => {
       if (res.data.success && res.data.activeJob) {
         setActiveJob(res.data.activeJob);
       } else {
-        setActiveJob(fallbackActiveJob);
+        setActiveJob(null);
       }
     } catch (err) {
-      console.warn('Using fallback active job:', err.message);
-      setActiveJob(fallbackActiveJob);
+      console.warn('No active rescue job found:', err.message);
+      setActiveJob(null);
     }
   };
 
@@ -151,8 +151,12 @@ const VolunteerPortal = () => {
         </p>
       </div>
 
-      {/* 2. Top Banner: Active Rescue Dispatch #JOB-104 with Leaflet Route Map */}
-      <ActiveJobCard activeJob={activeJob || fallbackActiveJob} onJobUpdated={handleJobUpdated} />
+      {/* 2. Top Banner: Active Rescue Dispatch with Leaflet Route Map */}
+      <ActiveJobCard
+        activeJob={activeJob}
+        onJobUpdated={handleJobUpdated}
+        onPreviewDemo={() => setActiveJob(fallbackActiveJob)}
+      />
 
       {/* 3. Section: Available Rescue Missions */}
       <div className="mt-12 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">

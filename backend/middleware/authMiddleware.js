@@ -30,3 +30,22 @@ export const protect = async (req, res, next) => {
     return res.status(401).json({ success: false, message: 'Not authorized, no token provided' });
   }
 };
+
+/**
+ * Middleware that extracts user from Bearer token if provided, but allows request to proceed if guest
+ */
+export const optionalProtect = async (req, res, next) => {
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    try {
+      const token = req.headers.authorization.split(' ')[1];
+      const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET || 'mealbridge_super_secret_jwt_key_2026'
+      );
+      req.user = await User.findById(decoded.id).select('-password');
+    } catch {
+      req.user = null;
+    }
+  }
+  next();
+};

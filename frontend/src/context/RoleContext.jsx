@@ -17,10 +17,23 @@ export const RoleProvider = ({ children }) => {
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  // Sync role on initial mount only if no authenticated session exists
+  // On initial mount: restore real user session if token exists, do NOT force demo user!
   useEffect(() => {
-    if (!currentUser) {
-      switchRole(currentRole, false);
+    const token = localStorage.getItem('mealbridge_token');
+    if (token) {
+      apiClient
+        .get('/users/profile')
+        .then((res) => {
+          if (res.data.success && res.data.user) {
+            setCurrentUser(res.data.user);
+            setCurrentRole(res.data.user.role || 'donor');
+            localStorage.setItem('mealbridge_user', JSON.stringify(res.data.user));
+            localStorage.setItem('mealbridge_role', res.data.user.role || 'donor');
+          }
+        })
+        .catch(() => {
+          console.warn('Session expired or offline. Ready as guest.');
+        });
     }
   }, []);
 
@@ -37,8 +50,9 @@ export const RoleProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('mealbridge_token');
     localStorage.removeItem('mealbridge_user');
+    localStorage.removeItem('mealbridge_role');
     setCurrentUser(null);
-    switchRole('donor', true);
+    setCurrentRole('guest');
   };
 
   const switchRole = async (newRole, shouldPersist = true) => {
