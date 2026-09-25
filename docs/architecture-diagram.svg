@@ -1,0 +1,168 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="100%" height="100%" style="background:#F9FAFB;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;">
+  <defs>
+    <linearGradient id="gradSage" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4E7065" />
+      <stop offset="100%" stop-color="#2D4E45" />
+    </linearGradient>
+    <linearGradient id="gradSunburst" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+    <linearGradient id="gradCard" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#F4F6F4" />
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#1E352F" flood-opacity="0.08" />
+    </filter>
+  </defs>
+
+  <!-- Title & Header Banner -->
+  <rect x="40" y="30" width="1120" height="90" rx="20" fill="url(#gradSage)" filter="url(#shadow)" />
+  <text x="70" y="75" font-size="28" font-weight="900" fill="#FFFFFF">🌉 MealBridge — Enterprise System Architecture</text>
+  <text x="70" y="102" font-size="14" font-weight="600" fill="#E2EBE5">Real-Time Surplus Food Redistribution, FSSAI Compliance &amp; Proximity Logistics</text>
+  <rect x="1000" y="55" width="130" height="36" rx="18" fill="#F59E0B" />
+  <text x="1065" y="78" font-size="13" font-weight="800" fill="#FFFFFF" text-anchor="middle">AmiHacks 1.0</text>
+
+  <!-- ================= 1. CLIENT / PRESENTATION TIER ================= -->
+  <g transform="translate(40, 150)">
+    <rect width="1120" height="175" rx="16" fill="url(#gradCard)" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)" />
+    <rect x="20" y="15" width="280" height="28" rx="8" fill="#2D4E45" />
+    <text x="30" y="34" font-size="13" font-weight="800" fill="#FFFFFF">1. PRESENTATION LAYER (React 18 + Vite)</text>
+    
+    <!-- Client Boxes -->
+    <g transform="translate(20, 55)">
+      <!-- Donor UI -->
+      <rect width="250" height="100" rx="12" fill="#FFFFFF" stroke="#8BA888" stroke-width="2" />
+      <text x="15" y="28" font-size="15" font-weight="800" fill="#2D4E45">🍽️ Donor Portal (/donate)</text>
+      <text x="15" y="50" font-size="11" fill="#4B5563">• 30-Sec Surplus Intake (min. 3kg)</text>
+      <text x="15" y="68" font-size="11" fill="#4B5563">• OpenStreetMap Nominatim Auth</text>
+      <text x="15" y="86" font-size="11" fill="#4B5563">• Section 80G Tax Exemption PDF</text>
+    </g>
+
+    <g transform="translate(295, 55)">
+      <!-- Shelter UI -->
+      <rect width="250" height="100" rx="12" fill="#FFFFFF" stroke="#8BA888" stroke-width="2" />
+      <text x="15" y="28" font-size="15" font-weight="800" fill="#2D4E45">🏠 Shelter Portal (/receive)</text>
+      <text x="15" y="50" font-size="11" fill="#4B5563">• Cold Storage Capacity Meter</text>
+      <text x="15" y="68" font-size="11" fill="#4B5563">• 15-Min Cascade Offer Cards</text>
+      <text x="15" y="86" font-size="11" fill="#4B5563">• Dietary Filter (Veg Only / Halal)</text>
+    </g>
+
+    <g transform="translate(570, 55)">
+      <!-- Volunteer UI -->
+      <rect width="250" height="100" rx="12" fill="#FFFFFF" stroke="#8BA888" stroke-width="2" />
+      <text x="15" y="28" font-size="15" font-weight="800" fill="#2D4E45">🛵 Volunteer Portal (/volunteer)</text>
+      <text x="15" y="50" font-size="11" fill="#4B5563">• Interactive Leaflet Route Maps</text>
+      <text x="15" y="68" font-size="11" fill="#4B5563">• Vehicle Breakdown Handler</text>
+      <text x="15" y="86" font-size="11" fill="#4B5563">• Turn-by-Turn GPS Waypoints</text>
+    </g>
+
+    <g transform="translate(845, 55)">
+      <!-- MealBot UI -->
+      <rect width="255" height="100" rx="12" fill="#FFFFFF" stroke="#F59E0B" stroke-width="2" />
+      <text x="15" y="28" font-size="15" font-weight="800" fill="#B45309">🤖 MealBot AI (/ai-learn)</text>
+      <text x="15" y="50" font-size="11" fill="#4B5563">• Google Gemini 3.8 Flash Chat</text>
+      <text x="15" y="68" font-size="11" fill="#4B5563">• Web Speech API Voice Read 🔊</text>
+      <text x="15" y="86" font-size="11" fill="#4B5563">• Expiry Risk Circular Gauge</text>
+    </g>
+  </g>
+
+  <!-- Connectors from Layer 1 to 2 -->
+  <line x1="600" y1="325" x2="600" y2="355" stroke="#4E7065" stroke-width="3" stroke-dasharray="6,4" />
+  <polygon points="595,355 600,365 605,355" fill="#4E7065" />
+
+  <!-- ================= 2. GATEWAY & CONFIDENTIALITY TIER ================= -->
+  <g transform="translate(40, 365)">
+    <rect width="1120" height="100" rx="16" fill="url(#gradCard)" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)" />
+    <rect x="20" y="12" width="310" height="26" rx="8" fill="#D97706" />
+    <text x="30" y="30" font-size="13" font-weight="800" fill="#FFFFFF">2. SECURITY, GATEWAY &amp; ROUTING GUARD</text>
+
+    <g transform="translate(20, 48)">
+      <rect width="250" height="40" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5" />
+      <text x="125" y="24" font-size="12" font-weight="700" fill="#1E40AF" text-anchor="middle">🛡️ RoleGuard &amp; Route Isolation</text>
+    </g>
+    <g transform="translate(295, 48)">
+      <rect width="250" height="40" rx="8" fill="#ECFDF5" stroke="#10B981" stroke-width="1.5" />
+      <text x="125" y="24" font-size="12" font-weight="700" fill="#065F46" text-anchor="middle">🔑 JWT Token Auth &amp; Brevo OTP</text>
+    </g>
+    <g transform="translate(570, 48)">
+      <rect width="250" height="40" rx="8" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1.5" />
+      <text x="125" y="24" font-size="12" font-weight="700" fill="#92400E" text-anchor="middle">🚪 React Portals (z-[9999] Modals)</text>
+    </g>
+    <g transform="translate(845, 48)">
+      <rect width="255" height="40" rx="8" fill="#F3F4F6" stroke="#6B7280" stroke-width="1.5" />
+      <text x="127" y="24" font-size="12" font-weight="700" fill="#1F2937" text-anchor="middle">⚙️ Dynamic Axios BaseURL Override</text>
+    </g>
+  </g>
+
+  <!-- Connectors from Layer 2 to 3 -->
+  <line x1="600" y1="465" x2="600" y2="495" stroke="#4E7065" stroke-width="3" stroke-dasharray="6,4" />
+  <polygon points="595,495 600,505 605,495" fill="#4E7065" />
+
+  <!-- ================= 3. BACKEND SERVICES / CONTROLLERS TIER ================= -->
+  <g transform="translate(40, 505)">
+    <rect width="1120" height="175" rx="16" fill="url(#gradCard)" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)" />
+    <rect x="20" y="15" width="290" height="28" rx="8" fill="#2D4E45" />
+    <text x="30" y="34" font-size="13" font-weight="800" fill="#FFFFFF">3. BACKEND API ENGINE (Node.js &amp; Express)</text>
+
+    <g transform="translate(20, 55)">
+      <rect width="250" height="100" rx="12" fill="#FFFFFF" stroke="#64748B" stroke-width="1.5" />
+      <text x="15" y="26" font-size="14" font-weight="800" fill="#1E293B">⚡ Matching &amp; Cascade</text>
+      <text x="15" y="48" font-size="11" fill="#475569">• Haversine Proximity Calculation</text>
+      <text x="15" y="66" font-size="11" fill="#475569">• 15-Min Auto Cascade Timer</text>
+      <text x="15" y="84" font-size="11" fill="#475569">• Dynamic Cold Capacity Sync</text>
+    </g>
+
+    <g transform="translate(295, 55)">
+      <rect width="250" height="100" rx="12" fill="#FFFFFF" stroke="#64748B" stroke-width="1.5" />
+      <text x="15" y="26" font-size="14" font-weight="800" fill="#1E293B">🛵 Dispatch &amp; Malfunction</text>
+      <text x="15" y="48" font-size="11" fill="#475569">• Volunteer Job Pool Claiming</text>
+      <text x="15" y="66" font-size="11" fill="#475569">• Vehicle Breakdown Recovery</text>
+      <text x="15" y="84" font-size="11" fill="#475569">• Zero-Penalty Immediate Re-queue</text>
+    </g>
+
+    <g transform="translate(570, 55)">
+      <rect width="250" height="100" rx="12" fill="#FFFFFF" stroke="#64748B" stroke-width="1.5" />
+      <text x="15" y="26" font-size="14" font-weight="800" fill="#1E293B">📜 Compliance &amp; Tax 80G</text>
+      <text x="15" y="48" font-size="11" fill="#475569">• Section 80G Receipt Generator</text>
+      <text x="15" y="66" font-size="11" fill="#475569">• FSSAI Food Safety Validation</text>
+      <text x="15" y="84" font-size="11" fill="#475569">• Verified Digital Cert Signatures</text>
+    </g>
+
+    <g transform="translate(845, 55)">
+      <rect width="255" height="100" rx="12" fill="#FFFFFF" stroke="#64748B" stroke-width="1.5" />
+      <text x="15" y="26" font-size="14" font-weight="800" fill="#1E293B">🤖 AI &amp; Risk Intelligence</text>
+      <text x="15" y="48" font-size="11" fill="#475569">• Google Gemini 3.8 Flash Client</text>
+      <text x="15" y="66" font-size="11" fill="#475569">• 20+ Topic Fallback Knowledge</text>
+      <text x="15" y="84" font-size="11" fill="#475569">• Microbiological Decay Algorithm</text>
+    </g>
+  </g>
+
+  <!-- Connectors from Layer 3 to 4 -->
+  <line x1="600" y1="680" x2="600" y2="710" stroke="#4E7065" stroke-width="3" stroke-dasharray="6,4" />
+  <polygon points="595,710 600,720 605,710" fill="#4E7065" />
+
+  <!-- ================= 4. PERSISTENCE & EXTERNAL SERVICES ================= -->
+  <g transform="translate(40, 720)">
+    <rect width="1120" height="150" rx="16" fill="url(#gradCard)" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)" />
+    <rect x="20" y="15" width="310" height="28" rx="8" fill="#1E3A8A" />
+    <text x="30" y="34" font-size="13" font-weight="800" fill="#FFFFFF">4. DATA PERSISTENCE &amp; CLOUD INFRASTRUCTURE</text>
+
+    <!-- MongoDB Atlas -->
+    <g transform="translate(20, 55)">
+      <rect width="450" height="75" rx="12" fill="#FFFFFF" stroke="#10B981" stroke-width="2" />
+      <text x="15" y="26" font-size="14" font-weight="800" fill="#047857">🍃 MongoDB Atlas (Cloud Cluster0)</text>
+      <text x="15" y="46" font-size="11" fill="#374151">• Collections: Users, Donations, Matches, ImpactLogs</text>
+      <text x="15" y="64" font-size="11" fill="#374151">• GeoJSON 2dsphere indexing for instant proximity querying</text>
+    </g>
+
+    <!-- Cloud APIs -->
+    <g transform="translate(490, 55)">
+      <rect width="610" height="75" rx="12" fill="#FFFFFF" stroke="#6366F1" stroke-width="2" />
+      <text x="15" y="26" font-size="14" font-weight="800" fill="#4338CA">☁️ External Cloud Services &amp; APIs</text>
+      <text x="15" y="46" font-size="11" fill="#374151">• Google Generative AI (Gemini 3.8 Flash) • OpenStreetMap Nominatim Geocoding</text>
+      <text x="15" y="64" font-size="11" fill="#374151">• Brevo Transactional Email Service (SMTP) • Render Cloud Platform (Auto-Deploy)</text>
+    </g>
+  </g>
+</svg>

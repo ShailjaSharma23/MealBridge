@@ -1,0 +1,185 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 850" width="100%" height="100%" style="background:#F9FAFB;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;">
+  <defs>
+    <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E3A8A" />
+      <stop offset="100%" stop-color="#0F172A" />
+    </linearGradient>
+    <filter id="cardShadow" x="-5%" y="-5%" width="110%" height="115%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#000000" flood-opacity="0.08" />
+    </filter>
+  </defs>
+
+  <!-- Title & Header -->
+  <rect x="40" y="30" width="1120" height="75" rx="16" fill="url(#headerGrad)" filter="url(#cardShadow)" />
+  <text x="70" y="70" font-size="24" font-weight="900" fill="#FFFFFF">🍃 MongoDB Atlas Database Schema &amp; Entity Relationships (ERD)</text>
+  <text x="70" y="92" font-size="13" font-weight="600" fill="#93C5FD">MealBridge Data Models, Foreign Keys, 2dsphere Geo Indexes &amp; Lifecycle Relations</text>
+
+  <!-- ================= ENTITY 1: USER ================= -->
+  <g transform="translate(40, 140)">
+    <rect width="260" height="380" rx="14" fill="#FFFFFF" stroke="#059669" stroke-width="2" filter="url(#cardShadow)" />
+    <path d="M 0 14 C 0 6 6 0 14 0 L 246 0 C 254 0 260 6 260 14 L 260 40 L 0 40 Z" fill="#059669" />
+    <text x="130" y="26" font-size="15" font-weight="800" fill="#FFFFFF" text-anchor="middle">👤 Users Collection</text>
+    
+    <!-- Fields -->
+    <text x="15" y="65" font-size="12" font-weight="bold" fill="#047857">🔑 _id : ObjectId (PK)</text>
+    <text x="15" y="85" font-size="11" fill="#374151">• name : String</text>
+    <text x="15" y="105" font-size="11" fill="#374151">• email : String (Unique, Indexed)</text>
+    <text x="15" y="125" font-size="11" fill="#374151">• password : String (Bcrypt Hash)</text>
+    <text x="15" y="145" font-size="11" font-weight="bold" fill="#D97706">• role : Enum ['donor','shelter','volunteer','admin']</text>
+    <text x="15" y="165" font-size="11" fill="#374151">• phone : String</text>
+    <text x="15" y="185" font-size="11" fill="#374151">• isVerified : Boolean</text>
+    <text x="15" y="205" font-size="11" font-weight="bold" fill="#2563EB">📍 location : Object</text>
+    <text x="25" y="223" font-size="10" fill="#6B7280">- address : String</text>
+    <text x="25" y="239" font-size="10" fill="#6B7280">- coordinates : { lat, lng } (2dsphere)</text>
+    <text x="15" y="260" font-size="11" fill="#4B5563">📦 donorDetails : { fssaiLicense, orgType }</text>
+    <text x="15" y="280" font-size="11" fill="#4B5563">🏢 shelterDetails : { capacityKg, currentStorageUsedKg, foodPreferences }</text>
+    <text x="15" y="300" font-size="11" fill="#4B5563">🛵 volunteerDetails : { vehicleType, isAvailable, completedRescues }</text>
+    <text x="15" y="325" font-size="10" fill="#9CA3AF">• createdAt, updatedAt : Timestamps</text>
+  </g>
+
+  <!-- ================= ENTITY 2: DONATION ================= -->
+  <g transform="translate(350, 140)">
+    <rect width="270" height="380" rx="14" fill="#FFFFFF" stroke="#D97706" stroke-width="2" filter="url(#cardShadow)" />
+    <path d="M 0 14 C 0 6 6 0 14 0 L 256 0 C 264 0 270 6 270 14 L 270 40 L 0 40 Z" fill="#D97706" />
+    <text x="135" y="26" font-size="15" font-weight="800" fill="#FFFFFF" text-anchor="middle">🍲 Donations Collection</text>
+    
+    <!-- Fields -->
+    <text x="15" y="65" font-size="12" font-weight="bold" fill="#B45309">🔑 _id : ObjectId (PK)</text>
+    <text x="15" y="85" font-size="12" font-weight="bold" fill="#047857">🔗 donor : ObjectId (FK -> User)</text>
+    <text x="15" y="105" font-size="11" fill="#374151">• donorName : String</text>
+    <text x="15" y="125" font-size="11" fill="#374151">• foodName : String</text>
+    <text x="15" y="145" font-size="11" fill="#374151">• category : Enum ['Cooked Meals', 'Bakery', ...]</text>
+    <text x="15" y="165" font-size="11" font-weight="bold" fill="#DC2626">• quantityKg : Number (min: 3.0 kg)</text>
+    <text x="15" y="185" font-size="11" fill="#374151">• servingsCount : Number (quantityKg * 2.5)</text>
+    <text x="15" y="205" font-size="11" fill="#374151">• dietaryType : Enum ['Veg Only', 'Non-Veg', ...]</text>
+    <text x="15" y="225" font-size="11" fill="#374151">• expiryHours : Number</text>
+    <text x="15" y="245" font-size="11" font-weight="bold" fill="#B45309">⏰ expiresAt : Date (Time-decay index)</text>
+    <text x="15" y="265" font-size="11" fill="#374151">• pickupAddress : String (Nominatim verified)</text>
+    <text x="15" y="285" font-size="11" fill="#374151">• pickupCoordinates : { lat, lng }</text>
+    <text x="15" y="305" font-size="11" font-weight="bold" fill="#4338CA">• status : ['posted','matched','claimed','delivered','expired']</text>
+    <text x="15" y="325" font-size="11" fill="#374151">• taxReceiptGenerated : Boolean</text>
+  </g>
+
+  <!-- ================= ENTITY 3: MATCH ================= -->
+  <g transform="translate(670, 140)">
+    <rect width="280" height="420" rx="14" fill="#FFFFFF" stroke="#4F46E5" stroke-width="2" filter="url(#cardShadow)" />
+    <path d="M 0 14 C 0 6 6 0 14 0 L 266 0 C 274 0 280 6 280 14 L 280 40 L 0 40 Z" fill="#4F46E5" />
+    <text x="140" y="26" font-size="15" font-weight="800" fill="#FFFFFF" text-anchor="middle">⚡ Matches / Jobs Collection</text>
+    
+    <!-- Fields -->
+    <text x="15" y="65" font-size="12" font-weight="bold" fill="#4338CA">🔑 _id : ObjectId (PK)</text>
+    <text x="15" y="85" font-size="12" font-weight="bold" fill="#B45309">🔗 donation : ObjectId (FK -> Donation)</text>
+    <text x="15" y="105" font-size="12" font-weight="bold" fill="#047857">🔗 shelter : ObjectId (FK -> User [Shelter])</text>
+    <text x="15" y="125" font-size="12" font-weight="bold" fill="#047857">🔗 volunteer : ObjectId (FK -> User [Volunteer])</text>
+    <text x="15" y="145" font-size="11" font-weight="bold" fill="#1E293B">• jobCode : String (e.g. "JOB-104")</text>
+    <text x="15" y="165" font-size="11" fill="#374151">• distanceKm : Number (Haversine calc)</text>
+    <text x="15" y="185" font-size="11" fill="#374151">• estimatedMinutes : Number</text>
+    <text x="15" y="205" font-size="11" font-weight="bold" fill="#D97706">⏱️ cascadeExpiresAt : Date (15-Min Timer)</text>
+    <text x="15" y="225" font-size="11" fill="#374151">• cascadeCount : Number</text>
+    <text x="15" y="245" font-size="11" font-weight="bold" fill="#047857">• status : Enum [</text>
+    <text x="25" y="263" font-size="10" fill="#4338CA">  'matched', 'shelter_accepted', 'volunteer_assigned',</text>
+    <text x="25" y="279" font-size="10" fill="#4338CA">  'in_transit', 'delivered', 'vehicle_breakdown'</text>
+    <text x="15" y="297" font-size="11" fill="#374151">]</text>
+    <text x="15" y="317" font-size="11" font-weight="bold" fill="#DC2626">🚨 vehicleBreakdownReport : Object</text>
+    <text x="25" y="335" font-size="10" fill="#6B7280">- isReported, reason, reportedAt, coords, reAssigned</text>
+    <text x="15" y="355" font-size="11" fill="#374151">• routeWaypoints : [{ lat, lng, label }]</text>
+    <text x="15" y="375" font-size="11" fill="#374151">• proofOfDelivery : { pin, photoUrl, deliveredAt }</text>
+  </g>
+
+  <!-- ================= ENTITY 4: IMPACT LOG ================= -->
+  <g transform="translate(980, 140)">
+    <rect width="180" height="380" rx="14" fill="#FFFFFF" stroke="#0284C7" stroke-width="2" filter="url(#cardShadow)" />
+    <path d="M 0 14 C 0 6 6 0 14 0 L 166 0 C 174 0 180 6 180 14 L 180 40 L 0 40 Z" fill="#0284C7" />
+    <text x="90" y="26" font-size="14" font-weight="800" fill="#FFFFFF" text-anchor="middle">📊 ImpactLogs</text>
+    
+    <text x="12" y="65" font-size="11" font-weight="bold" fill="#0369A1">🔑 _id : ObjectId</text>
+    <text x="12" y="85" font-size="11" fill="#374151">• monthYear : String</text>
+    <text x="12" y="105" font-size="11" font-weight="bold" fill="#047857">• totalKgRescued</text>
+    <text x="12" y="125" font-size="11" fill="#374151">• mealsServed</text>
+    <text x="12" y="145" font-size="11" font-weight="bold" fill="#D97706">• co2SavedKg</text>
+    <text x="12" y="165" font-size="11" fill="#374151">• activeShelters</text>
+    <text x="12" y="185" font-size="11" fill="#374151">• activeDonors</text>
+    <text x="12" y="205" font-size="11" fill="#374151">• categoryBreakdown</text>
+    <text x="12" y="225" font-size="10" fill="#6B7280">- Cooked Meals</text>
+    <text x="12" y="241" font-size="10" fill="#6B7280">- Bakery</text>
+    <text x="12" y="257" font-size="10" fill="#6B7280">- Produce</text>
+    <text x="12" y="273" font-size="10" fill="#6B7280">- Packaged Food</text>
+  </g>
+
+  <!-- Connectors between Entities -->
+  <!-- User to Donation (1:N) -->
+  <path d="M 300 220 L 350 220" stroke="#059669" stroke-width="3" fill="none" />
+  <circle cx="300" cy="220" r="4" fill="#059669" />
+  <text x="325" y="212" font-size="11" font-weight="bold" fill="#059669" text-anchor="middle">1 : N</text>
+
+  <!-- Donation to Match (1:1 or 1:N) -->
+  <path d="M 620 220 L 670 220" stroke="#D97706" stroke-width="3" fill="none" />
+  <circle cx="620" cy="220" r="4" fill="#D97706" />
+  <text x="645" y="212" font-size="11" font-weight="bold" fill="#D97706" text-anchor="middle">1 : 1</text>
+
+  <!-- Match to ImpactLog (N:1 aggregated) -->
+  <path d="M 950 220 L 980 220" stroke="#4F46E5" stroke-width="3" fill="none" />
+  <circle cx="950" cy="220" r="4" fill="#4F46E5" />
+  <text x="965" y="212" font-size="10" font-weight="bold" fill="#4F46E5" text-anchor="middle">agg</text>
+
+  <!-- ================= 5. LIFECYCLE FLOW SUMMARY ================= -->
+  <g transform="translate(40, 580)">
+    <rect width="1120" height="230" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#cardShadow)" />
+    <text x="30" y="32" font-size="16" font-weight="900" fill="#1E293B">🔄 End-to-End Real-Time Data Flow Pipeline</text>
+
+    <!-- Stage 1 -->
+    <g transform="translate(30, 55)">
+      <rect width="190" height="150" rx="10" fill="#ECFDF5" stroke="#059669" stroke-width="1.5" />
+      <text x="12" y="25" font-size="12" font-weight="bold" fill="#065F46">Step 1: Intake &amp; Auth</text>
+      <text x="12" y="48" font-size="10" fill="#374151">• Donor posts batch &gt;= 3kg</text>
+      <text x="12" y="66" font-size="10" fill="#374151">• Geocode authenticated</text>
+      <text x="12" y="84" font-size="10" fill="#374151">• FSSAI compliance tag</text>
+      <text x="12" y="102" font-size="10" fill="#374151">• Expiry timer starts</text>
+      <text x="12" y="125" font-size="10" font-weight="bold" fill="#047857">Status: "posted"</text>
+    </g>
+
+    <!-- Stage 2 -->
+    <g transform="translate(255, 55)">
+      <rect width="190" height="150" rx="10" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5" />
+      <text x="12" y="25" font-size="12" font-weight="bold" fill="#92400E">Step 2: Proximity Match</text>
+      <text x="12" y="48" font-size="10" fill="#374151">• Haversine distance calc</text>
+      <text x="12" y="66" font-size="10" fill="#374151">• Check cold storage cap</text>
+      <text x="12" y="84" font-size="10" fill="#374151">• 15-min priority cascade</text>
+      <text x="12" y="102" font-size="10" fill="#374151">• Shelter accept/pass</text>
+      <text x="12" y="125" font-size="10" font-weight="bold" fill="#B45309">Status: "matched"</text>
+    </g>
+
+    <!-- Stage 3 -->
+    <g transform="translate(480, 55)">
+      <rect width="190" height="150" rx="10" fill="#EEF2FF" stroke="#4F46E5" stroke-width="1.5" />
+      <text x="12" y="25" font-size="12" font-weight="bold" fill="#3730A3">Step 3: Courier Claim</text>
+      <text x="12" y="48" font-size="10" fill="#374151">• Courier claims job pool</text>
+      <text x="12" y="66" font-size="10" fill="#374151">• Leaflet turn-by-turn map</text>
+      <text x="12" y="84" font-size="10" fill="#374151">• Malfunction report button</text>
+      <text x="12" y="102" font-size="10" fill="#374151">• Pickup bay verification</text>
+      <text x="12" y="125" font-size="10" font-weight="bold" fill="#4338CA">Status: "claimed"</text>
+    </g>
+
+    <!-- Stage 4 -->
+    <g transform="translate(705, 55)">
+      <rect width="190" height="150" rx="10" fill="#F0FDF4" stroke="#16A34A" stroke-width="1.5" />
+      <text x="12" y="25" font-size="12" font-weight="bold" fill="#15803D">Step 4: Safe Drop-off</text>
+      <text x="12" y="48" font-size="10" fill="#374151">• Shelter confirms delivery</text>
+      <text x="12" y="66" font-size="10" fill="#374151">• Cold storage kg updated</text>
+      <text x="12" y="84" font-size="10" fill="#374151">• Courier badge awarded</text>
+      <text x="12" y="102" font-size="10" fill="#374151">• Confetti animation 🎉</text>
+      <text x="12" y="125" font-size="10" font-weight="bold" fill="#166534">Status: "delivered"</text>
+    </g>
+
+    <!-- Stage 5 -->
+    <g transform="translate(930, 55)">
+      <rect width="160" height="150" rx="10" fill="#F0F9FF" stroke="#0284C7" stroke-width="1.5" />
+      <text x="10" y="25" font-size="12" font-weight="bold" fill="#075985">Step 5: ESG &amp; 80G</text>
+      <text x="10" y="48" font-size="10" fill="#374151">• Section 80G cert PDF</text>
+      <text x="10" y="66" font-size="10" fill="#374151">• CO2e saved logged</text>
+      <text x="10" y="84" font-size="10" fill="#374151">• Meals served added</text>
+      <text x="10" y="102" font-size="10" fill="#374151">• Public audit ledger</text>
+      <text x="10" y="125" font-size="10" font-weight="bold" fill="#0284C7">Status: "certified"</text>
+    </g>
+  </g>
+</svg>
