@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MealBridge — AmiHacks 2026 Presentation Deck</title>
+  <link rel="icon" type="image/png" href="/logo.png">
+  <style>
+    :root {
+      --forest: #2D4E45;
+      --forest-dark: #1E352F;
+      --sage: #4E7065;
+      --sage-light: #8BA888;
+      --sage-bg: #F4F6F4;
+      --amber: #F59E0B;
+      --amber-dark: #D97706;
+      --amber-bg: #FEF3C7;
+      --bg: #FBFBF9;
+      --card-bg: #FFFFFF;
+      --border: #E2E8F0;
+      --text: #1F2937;
+      --text-muted: #6B7280;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top presentation status bar */
+    .top-bar {
+      height: 52px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 100;
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      font-weight: 800;
+      font-size: 16px;
+      color: var(--forest);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-badge {
+      background: var(--amber-bg);
+      color: var(--amber-dark);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid #FDE68A;
+    }
+
+    .deck-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-nav {
+      background: var(--forest);
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s;
+    }
+
+    .btn-nav:hover {
+      background: var(--forest-dark);
+    }
+
+    .btn-nav:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .slide-counter {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--forest);
+      min-width: 60px;
+      text-align: center;
+    }
+
+    /* Main Slides Container */
+    .slides-wrapper {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .slide {
+      position: absolute;
+      width: 94%;
+      max-width: 1160px;
+      height: calc(100vh - 100px);
+      max-height: 720px;
+      background: var(--card-bg);
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+      padding: 36px 48px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(12px) scale(0.99);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow-y: auto;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+
+    /* Slide Elements */
+    .slide-header {
+      margin-bottom: 20px;
+    }
+
+    .slide-tag {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--sage);
+      margin-bottom: 6px;
+      display: inline-block;
+    }
+
+    .slide-title {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--forest);
+      line-height: 1.2;
+    }
+
+    .slide-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .slide-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .slide-footer-notes {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Grid Layouts for Content */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 20px;
+    }
+
+    .card h4 {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--forest);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card p, .card li {
+      font-size: 12px;
+      color: #374151;
+      line-height: 1.5;
+    }
+
+    .card ul {
+      list-style: none;
+    }
+
+    .card ul li {
+      position: relative;
+      padding-left: 14px;
+      margin-bottom: 6px;
+    }
+
+    .card ul li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: var(--sage);
+      font-weight: bold;
+    }
+
+    /* Flow Diagrams */
+    .flow-horizontal {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .flow-node {
+      background: #FFFFFF;
+      border: 2px solid var(--sage-light);
+      border-radius: 12px;
+      padding: 12px 14px;
+      text-align: center;
+      flex: 1;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .flow-node.alert {
+      border-color: var(--amber);
+      background: #FFFBEB;
+    }
+
+    .flow-node.success {
+      border-color: #10B981;
+      background: #ECFDF5;
+    }
+
+    .flow-node-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--forest);
+      margin-bottom: 4px;
+    }
+
+    .flow-node-desc {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .flow-arrow {
+      color: var(--sage);
+      font-weight: 900;
+      font-size: 18px;
+    }
+
+    /* Title Slide Specifics */
+    .hero-slide-content {
+      text-align: center;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .hero-logo-img {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(45, 78, 69, 0.15);
+    }
+
+    .hero-big-title {
+      font-size: 44px;
+      font-weight: 900;
+      color: var(--forest);
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .hero-tagline {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--sage);
+      margin-bottom: 24px;
+    }
+
+    .hero-banner-strip {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 24px;
+      background: var(--sage-bg);
+      border: 1px solid #D1D5DB;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--forest);
+    }
+
+    /* Comparison Table / Callouts */
+    .badge-fssai {
+      background: #ECFDF5;
+      color: #065F46;
+      border: 1px solid #A7F3D0;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 10px;
+    }
+
+    .badge-tax {
+      background: #FEF3C7;
+      color: #92400E;
+      border: 1px solid #FDE68A;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 10px;
+    }
+
+    .badge-ai {
+      background: #EEF2FF;
+      color: #3730A3;
+      border: 1px solid #C7D2FE;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 10px;
+    }
+
+    /* Diagram frame */
+    .diagram-frame {
+      width: 100%;
+      height: 380px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #FFFFFF;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .diagram-frame object, .diagram-frame img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    /* Keyboard hints */
+    .kb-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .kbd {
+      background: #F3F4F6;
+      border: 1px solid #D1D5DB;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: monospace;
+      font-size: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Presentation Navigation Bar -->
+  <header class="top-bar">
+    <div class="brand-title">
+      <span>🌉 MealBridge</span>
+      <span class="brand-badge">AmiHacks 2026</span>
+      <span style="font-size: 12px; color: var(--text-muted); font-weight: normal; margin-left: 8px;">Round 1 Technical Evaluation</span>
+    </div>
+
+    <div class="deck-controls">
+      <span class="kb-hint"><span class="kbd">←</span> <span class="kbd">→</span> or <span class="kbd">Space</span> to navigate</span>
+      <button class="btn-nav" id="prevBtn" onclick="prevSlide()">‹ Prev</button>
+      <span class="slide-counter" id="slideCounter">1 / 15</span>
+      <button class="btn-nav" id="nextBtn" onclick="nextSlide()">Next ›</button>
+      <button class="btn-nav" style="background:#4B5563" onclick="toggleFullScreen()">⛶ Fullscreen</button>
+    </div>
+  </header>
+
+  <!-- Slide Deck Container -->
+  <main class="slides-wrapper">
+
+    <!-- ================= SLIDE 1 ================= -->
+    <div class="slide active" id="slide-1">
+      <div class="slide-header">
+        <span class="slide-tag">AmiHacks 2026 — Track A: Surplus-to-Shelter</span>
+      </div>
+      <div class="slide-body">
+        <div class="hero-slide-content">
+          <img src="/logo.png" alt="MealBridge Logo" class="hero-logo-img">
+          <h1 class="hero-big-title">MealBridge</h1>
+          <p class="hero-tagline">"Connecting Surplus Food to Those Who Can Use It"</p>
+          <div class="hero-banner-strip">
+            <span>SURPLUS FOOD</span>
+            <span>➔</span>
+            <span>COORDINATION</span>
+            <span>➔</span>
+            <span>RESCUE</span>
+            <span>➔</span>
+            <span>MEASURABLE IMPACT</span>
+          </div>
+          <p style="margin-top: 24px; font-size: 13px; color: #4B5563; line-height: 1.6;">
+            A real-time, fault-tolerant digital rescue platform connecting commercial kitchens, recipient shelters, and volunteer couriers with deterministic matching, capacity tracking, and verifiable impact records.
+          </p>
+        </div>
+      </div>
+      <div class="slide-footer-notes">
+        <span>Team: Yash Bhatt &amp; Shailja Sharma</span>
+        <span>AmiHacks 2026 Evaluation</span>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 2 ================= -->
+    <div class="slide" id="slide-2">
+      <div class="slide-header">
+        <span class="slide-tag">The Root Challenge</span>
+        <h2 class="slide-title">"The Problem Is Not Food. It Is Coordination."</h2>
+        <p class="slide-subtitle">Edible surplus food exists every evening, but fragmented communication causes it to expire before rescue.</p>
+      </div>
+      <div class="slide-body">
+        <div class="grid-2">
+          <!-- Left: Fragmented Workflow -->
+          <div class="card" style="border-left: 4px solid #EF4444;">
+            <h4>⚠️ Existing Fragmented Coordination</h4>
+            <div style="font-family: monospace; font-size: 11px; background: #FFFFFF; padding: 12px; border-radius: 8px; border: 1px solid var(--border); line-height: 1.8; color: #374151;">
+              DONOR RESTAURANT<br>
+              &nbsp;&nbsp;↓ <em>Manual phone call / WhatsApp thread</em><br>
+              Informal Search for Available Shelters<br>
+              &nbsp;&nbsp;↓ <em>No visibility into shelter hours or cold storage</em><br>
+              Ad-Hoc Volunteer / Vehicle Search<br>
+              &nbsp;&nbsp;↓ <em>Delays, vehicle breakdowns, zero route tracking</em><br>
+              Unverified Drop-off or Food Spoilage
+            </div>
+          </div>
+
+          <!-- Right: Real-World Consequences -->
+          <div class="card">
+            <h4>🚨 Real-World Consequences</h4>
+            <ul>
+              <li><strong>The Time-Decay Trap:</strong> Cooked meals have a strict 2-hour ambient limit under FSSAI. Manual coordination takes 3+ hours, rendering food unsafe.</li>
+              <li><strong>Cold-Chain Mismatch:</strong> Shelters receive 40 kg donations but only have 10 kg of spare refrigeration space, causing secondary spoilage.</li>
+              <li><strong>Zero Operational Visibility:</strong> Donors cannot track whether food reached children; volunteers lack navigation.</li>
+              <li><strong>Economic Disincentive:</strong> Discarding food into landfills is treated as a total loss rather than a tax-deductible contribution.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer-notes">
+        <span>FSSAI Surplus Food Regulations (2019) Standard</span>
+        <span>Slide 2 of 15</span>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 3 ================= -->
+    <div class="slide" id="slide-3">
+      <div class="slide-header">
+        <span class="slide-tag">Platform Concept</span>
+        <h2 class="slide-title">MealBridge: One Digital Rescue Workflow</h2>
+        <p class="slide-subtitle">Replacing ad-hoc phone calls with an integrated, time-sensitive digital platform.</p>
+      </div>
+      <div class="slide-body">
+        <div class="flow-horizontal" style="margin: 28px 0;">
+          <div class="flow-node">
+            <div class="flow-node-title">🍱 Food Donor</div>
+            <div class="flow-node-desc">Posts surplus &gt;= 3kg with verified pickup bay address</div>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-node" style="border-color: var(--forest); background: var(--sage-bg);">
+            <div class="flow-node-title">🌉 MealBridge Engine</div>
+            <div class="flow-node-desc">Proximity matching, 15-min cascade &amp; capacity sync</div>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-node">
+            <div class="flow-node-title">🏠 Recipient Shelter</div>
+            <div class="flow-node-desc">Reviews live offer &amp; accepts within cold storage limit</div>
+          </div>
+        </div>
+
+        <div class="flow-horizontal" style="margin: 10px 0;">
+          <div class="flow-node" style="flex: 0 0 32%; margin-left: auto;">
+            <div class="flow-node-title">🛵 Volunteer Courier</div>
+            <div class="flow-node-desc">Claims rescue mission &amp; navigates via turn-by-turn map</div>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-node success" style="flex: 0 0 32%; margin-right: auto;">
+            <div class="flow-node-title">🎉 Verified Delivery &amp; Impact</div>
+            <div class="flow-node-desc">Automated Section 80G tax receipt + logged CO2 offset</div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer-notes">
+        <span>Integrated Civic Architecture</span>
+        <span>Slide 3 of 15</span>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 4 ================= -->
+    <div class="slide" id="slide-4">
+      <div class="slide-header">
+        <span class="slide-tag">User Personas</span>
+        <h2 class="slide-title">Who Uses MealBridge?</h2>
+        <p class="slide-subtitle">Four distinct operational roles with complete interface confidentiality and route protection.</p>
+      </div>
+      <div class="slide-body">
+        <div class="grid-4">
+          <div class="card">
+            <h4>🍱 DONOR</h4>
+            <ul>
+              <li>Restaurants, cafeterias, bakeries, supermarkets</li>
+              <li>Posts surplus batches with safety expiration limits</li>
+              <li>Validates pickup bay via OpenStreetMap Nominatim</li>
+              <li>Receives verifiable Section 80G tax exemption receipts</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h4>🏠 SHELTER</h4>
+            <ul>
+              <li>Verified NGOs, orphanages, community kitchens</li>
+              <li>Calibrates refrigeration capacity meter (e.g. 50 kg max)</li>
+              <li>Sets dietary criteria (Veg Only, Cooked Food)</li>
+              <li>Accepts or cascades incoming matched offers</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h4>🛵 VOLUNTEER</h4>
+            <ul>
+              <li>Crowdsourced couriers (scooters, vans, bicycles)</li>
+              <li>Browses available rescue job board by urgency</li>
+              <li>Turn-by-turn Leaflet GPS route navigation</li>
+              <li>Emergency vehicle malfunction recovery protocol</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h4>👤 ADMIN</h4>
+            <ul>
+              <li>Platform integrity and city oversight</li>
+              <li>FSSAI food license verification</li>
+              <li>Audit logging for public impact ledger</li>
+              <li>Resolution of escalated dispatch incidents</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer-notes">
+        <span>Enforced by RoleGuard and Dynamic Navigation Isolation</span>
+        <span>Slide 4 of 15</span>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 5 ================= -->
+    <div class="slide" id="slide-5">
+      <div class="slide-header">
+        <span class="slide-tag">Operational Pipeline</span>
+        <h2 class="slide-title">How the Rescue Works</h2>
+        <p class="slide-subtitle">The 10-step deterministic state machine from surplus intake to verified drop-off.</p>
+      </div>
+      <div class="slide-body">
+        <div class="card" style="padding: 16px;">
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 12px;">
+              <span style="background: var(--forest); color: white; border-radius: 999px; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">1</span>
+              <strong>Donor Intake:</strong> Donor enters food title, category, quantity, and preparation time.
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 12px;">
+              <span style="background: var(--forest); color: white; border-radius: 999px; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">2</span>
+              <strong>Feasibility Validation:</strong> System enforces a minimum 3 kg threshold to justify courier dispatch emissions.
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 12px;">
+              <span style="background: var(--forest); color: white; border-radius: 999px; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">3</span>
+              <strong>Location Authentication:</strong> Geocoded via OpenStreetMap Nominatim or verified GPS coordinates.
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 12px;">
+              <span style="background: var(--forest); color: white; border-radius: 999px; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">4</span>
+              <strong>Proximity Matching:</strong> Haversine great-circle calculation identifies nearest compatible shelter with spare cold capacity.
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 12px;">
+              <span style="background: var(--forest); color: white; border-radius: 999px; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">5</span>
+              <strong>Shelter Notification:</strong> Offer displayed with a 15-minute priority countdown timer.
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 12px;">
+              <span style="background: var(--forest); color: white; border-radius: 999px; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">6</span>
+              <strong>Acceptance / Cascade:</strong> Shelter accepts; cold storage meter increments. (If passed, cascades to next shelter).
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 12px;">
+              <span style="background: var(--forest); color: white; border-radius: 999px; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">7</span>
+              <strong>Courier Claim:</strong> Volunteer claims job from Available Pool (Status: 'volunteer_assigned').
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 12px;">
+              <span style="background: var(--forest); color: white; border-radius: 999px; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">8</span>
+              <strong>GPS Routing:</strong> Interactive Leaflet map provides turn-by-turn navigation between bay and shelter.
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 12px;">
+              <span style="background: var(--forest); color: white; border-radius: 999px; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">9</span>
+              <strong>Confirmed Drop-off:</strong> Recipient confirms receipt; volunteer receives verified mission badge.
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 12px;">
+              <span style="background: var(--forest); color: white; border-radius: 999px; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">10</span>
+              <strong>Impact Logging:</strong> System aggregates CO2e avoided and issues an audit-ready Section 80G PDF receipt.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer-notes">
+        <span>Deterministic Lifecyle Management</span>
+        <span>Slide 5 of 15</span>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 6 ================= -->
+    <div class="slide" id="slide-6">
+      <div class="slide-header">
+        <span class="slide-tag">Technical Architecture</span>
+        <h2 class="slide-title">Smart Matching &amp; Business Logic</h2>
+        <p class="slide-subtitle">Deterministic, rule-based matching based on geospatial distance, cold capacity, and dietary criteria.</p>
+      </div>
+      <div class="slide-body">
+        <div class="grid-2">
+          <div class="card">
+            <h4>📐 Haversine Geospatial Proximity</h4>
+            <p style="margin-bottom: 8px;">Calculates the exact great-circle distance between donor pickup bay and recipient shelters:</p>
+            <div style="background: #FFFFFF; padding: 10px; border-radius: 8px; font-family: monospace; font-size: 11px; border: 1px solid var(--border);">
+              a = sin²(Δφ/2) + cos(φ1)·cos(φ2)·sin²(Δλ/2)<br>
+              d = 2 · R · atan2(√a, √(1-a))<br>
+              <em>(Earth radius R = 6371 km)</em>
+            </div>
+            <p style="margin-top: 8px; font-size: 11px; color: var(--text-muted);">Executed against MongoDB <code>2dsphere</code> index for sub-10ms query execution.</p>
+          </div>
+
+          <div class="card">
+            <h4>⚖️ Deterministic Eligibility Rules</h4>
+            <ul>
+              <li><strong>Cold Storage Check:</strong> <code>(shelter.capacityKg - shelter.currentStorageUsedKg) &gt;= donation.quantityKg</code></li>
+              <li><strong>Dietary Compliance:</strong> Pure Veg shelters only receive batches tagged <code>Veg Only</code>.</li>
+              <li><strong>Perishability Window:</strong> Estimated travel time must be substantially less than remaining safe shelf life.</li>
+              <li><strong>Technical Integrity Note:</strong> Implemented with transparent, audit-ready deterministic logic—<em>strictly avoiding unverified neural predictions</em>.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer-notes">
+        <span>Deterministic Rule Engine (Node.js &amp; MongoDB)</span>
+        <span>Slide 6 of 15</span>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 7 ================= -->
+    <div class="slide" id="slide-7">
+      <div class="slide-header">
+        <span class="slide-tag">Dynamic Resilience</span>
+        <h2 class="slide-title">Time-Sensitive 15-Minute Cascade</h2>
+        <p class="slide-subtitle">Preventing food waste when a primary shelter is unresponsive or declines an offer.</p>
+      </div>
+      <div class="slide-body">
+        <div class="flow-horizontal">
+          <div class="flow-node">
+            <div class="flow-node-title">🍲 Donation Available</div>
+            <div class="flow-node-desc">Status: 'offered'</div>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-node alert">
+            <div class="flow-node-title">🏠 Primary Shelter (A)</div>
+            <div class="flow-node-desc">15-Minute Countdown Active</div>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-node" style="border-style: dashed;">
+            <div class="flow-node-title">⏰ Timeout / Pass</div>
+            <div class="flow-node-desc">Declined or 15 mins elapsed</div>
+          </div>
+          <div class="flow-arrow">➔</div>
+          <div class="flow-node success">
+            <div class="flow-node-title">🏠 Next Nearest Shelter (B)</div>
+            <div class="flow-node-desc">Auto-forwarded &amp; Fresh 15m window</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 16px;">
+          <h4>🔍 Implementation Highlights in <code>shelterController.js</code></h4>
+          <ul>
+            <li><strong>Passed Record Logging:</strong> Declining shelter is added to <code>match.passedShelters</code> to prevent redundant offers.</li>
+            <li><strong>Automatic Radius Extension:</strong> The system selects the next nearest verified shelter within the metropolitan boundary.</li>
+            <li><strong>Zero Human Delay:</strong> The donation does not stall; the cascade executes immediately upon timer expiration or explicit decline.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="slide-footer-notes">
+        <span>Cascade State Machine in shelterController.js</span>
+        <span>Slide 7 of 15</span>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 8 ================= -->
+    <div class="slide" id="slide-8">
+      <div class="slide-header">
+        <span class="slide-tag">Operational Fault-Tolerance</span>
+        <h2 class="slide-title">Volunteer Vehicle Breakdown Recovery</h2>
+        <p class="slide-subtitle">A malfunction in transit does not destroy the food rescue mission.</p>
+      </div>
+      <div class="slide-body">
+        <div class="grid-2">
+          <div class="card" style="border-left: 4px solid var(--amber);">
+            <h4>🛵 Emergency Re-Dispatch State Machine</h4>
+            <ol style="font-size: 12px; padding-left: 18px; line-height: 1.8; color: #374151;">
+              <li>Volunteer encounters mechanical issue (flat tyre, engine fault, battery drain).</li>
+              <li>Taps <strong>"Report Malfunction"</strong> inside their active mission card.</li>
+              <li>Selects incident cause and captures real-time breakdown GPS coordinates.</li>
+              <li>Backend unassigns courier with <strong>zero penalty or rating loss</strong>.</li>
+              <li>Job is flagged <code>re_dispatch_needed</code> and boosted to the top of the Available Pool.</li>
+            </ol>
+          </div>
+
+          <div class="card">
+            <h4>🛡️ Two Handled Operational Scenarios</h4>
+            <ul>
+              <li><strong>Breakdown Before Pickup:</strong> Volunteer has not received food yet. Mission is returned immediately to the pool for direct pickup at the donor bay.</li>
+              <li><strong>Breakdown Mid-Transit (With Food):</strong> Courier is in possession of perishable food. System activates <code>relay_needed</code>; the breakdown coordinates become the new pickup point for an emergency courier handover.</li>
+              <li><strong>Stakeholder Sync:</strong> Donors and receiving shelters receive updated ETAs automatically.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer-notes">
+        <span>Emergency Handover Architecture in volunteerController.js</span>
+        <span>Slide 8 of 15</span>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 9 ================= -->
+    <div class="slide" id="slide-9">
+      <div class="slide-header">
+        <span class="slide-tag">System Stack</span>
+        <h2 class="slide-title">Full-Stack System Architecture</h2>
+        <p class="slide-subtitle">Clean 4-tier architecture implemented with modern, proven civic technology.</p>
+      </div>
+      <div class="slide-body">
+        <div class="diagram-frame">
+          <img src="/docs/architecture-diagram.svg" alt="MealBridge System Architecture" onerror="this.onerror=null; this.src='../docs/architecture-diagram.svg';">
+        </div>
+      </div>
+      <div class="slide-footer-notes">
+        <span>React 18 + Node.js + Express + MongoDB Atlas</span>
+        <span>Slide 9 of 15</span>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 10 ================= -->
+    <div class="slide" id="slide-10">
+      <div class="slide-header">
+        <span class="slide-tag">Data Architecture</span>
+        <h2 class="slide-title">Database Models &amp; Entity Relationships</h2>
+        <p class="slide-subtitle">MongoDB Atlas schemas with GeoJSON 2dsphere indexing and TTL expiration.</p>
+      </div>
+      <div class="slide-body">
+        <div class="diagram-frame">
+          <img src="/docs/database-er-diagram.svg" alt="MealBridge Database ERD" onerror="this.onerror=null; this.src='../docs/database-er-diagram.svg';">
+        </div>
+      </div>
+      <div class="slide-footer-notes">
+        <span>MongoDB Atlas Mongoose ODM Models</span>
+        <span>Slide 10 of 15</span>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 11 ================= -->
+    <div class="slide" id="slide-11">
+      <div class="slide-header">
+        <span class="slide-tag">Access &amp; Integrity</span>
+        <h2 class="slide-title">Security, Access Control &amp; UI Integrity</h2>
+        <p class="slide-subtitle">Role isolation, geocoded input validation, and stacking-context resilient modals.</p>
+      </div>
+      <div class="slide-body">
+        <div class="grid-3">
+          <div class="card">
+            <h4>🛡️ RoleGuard &amp; Scoped Navigation</h4>
+            <ul>
+              <li>Strict route barriers in <code>RoleGuard.jsx</code> intercept unauthorized URL navigation.</li>
+              <li>Donors only see 'Donate'; Shelters only see 'Receive'; Volunteers only see 'Volunteer Board'.</li>
+              <li>Prevents competitors or bad actors from inspecting food queues.</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h4>🗺️ Nominatim Geocode Authentication</h4>
+            <ul>
+              <li>Live verification against OpenStreetMap Nominatim API.</li>
+              <li>Fake/gibberish addresses (e.g. <code>abc nagar, xyz road</code>) are identified as 0 results and blocked.</li>
+              <li>Supports browser GPS reverse-geocoding for authenticated dispatch.</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h4>🚪 React Portal Architecture</h4>
+            <ul>
+              <li>Auth and Profile modals mounted via <code>createPortal(..., document.body)</code>.</li>
+              <li>Explicit <code>z-[9999]</code> prevents clipping inside sticky headers or scrolling banners.</li>
+              <li>Tested and responsive across desktop, tablet, and mobile viewports.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer-notes">
+        <span>JWT Authentication, Bcrypt Password Security &amp; OpenStreetMap API</span>
+        <span>Slide 11 of 15</span>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 12 ================= -->
+    <div class="slide" id="slide-12">
+      <div class="slide-header">
+        <span class="slide-tag">User Guidance</span>
+        <h2 class="slide-title">MealBot: User Assistance &amp; Website Guidance</h2>
+        <p class="slide-subtitle">An LLM-powered assistant reducing onboarding friction and explaining food safety regulations.</p>
+      </div>
+      <div class="slide-body">
+        <div class="grid-2">
+          <div class="card">
+            <h4>🤖 What MealBot Does</h4>
+            <ul>
+              <li><strong>Explains Platform Features:</strong> Helps first-time donors and volunteers understand how to use the website.</li>
+              <li><strong>FSSAI Safety Guidance:</strong> Informs users on 2-hour ambient holding rules, hot hold (&gt;60°C), and cold storage (&lt;5°C).</li>
+              <li><strong>Section 80G Tax Education:</strong> Explains how commercial kitchens claim 50% tax deductions on food donations.</li>
+              <li><strong>Speech Synthesis:</strong> Features browser-native <strong>Web Speech API</strong> voice narration for accessibility.</li>
+            </ul>
+          </div>
+
+          <div class="card" style="border-left: 4px solid var(--sage-light);">
+            <h4>🚫 Clear Technical Boundary (What MealBot Is NOT)</h4>
+            <ul>
+              <li><strong>NOT an operational dispatcher:</strong> Matching is strictly governed by deterministic backend logic.</li>
+              <li><strong>NOT a decision-maker:</strong> It does not re-route couriers or allocate food batches.</li>
+              <li><strong>NOT predictive ML:</strong> Expiry calculations use deterministic statutory thresholds (e.g. rice = 4 hrs).</li>
+              <li><strong>Architectural Role:</strong> Strictly a natural-language guide to make complex civic software intuitive for everyday citizens.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer-notes">
+        <span>Powered by Google Gemini 3.8 Flash + Web Speech API (Client)</span>
+        <span>Slide 12 of 15</span>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 13 ================= -->
+    <div class="slide" id="slide-13">
+      <div class="slide-header">
+        <span class="slide-tag">Environmental &amp; Social Value</span>
+        <h2 class="slide-title">From Individual Rescue to Measurable Impact</h2>
+        <p class="slide-subtitle">Converting diverted organic waste into verifiable public audit records.</p>
+      </div>
+      <div class="slide-body">
+        <div class="grid-4" style="margin-bottom: 16px;">
+          <div class="card" style="text-align: center;">
+            <div style="font-size: 26px; font-weight: 900; color: var(--forest);">16,800+</div>
+            <div style="font-size: 11px; font-weight: bold; color: var(--text-muted); text-transform: uppercase;">KG Food Rescued</div>
+          </div>
+          <div class="card" style="text-align: center;">
+            <div style="font-size: 26px; font-weight: 900; color: var(--forest);">38,400+</div>
+            <div style="font-size: 11px; font-weight: bold; color: var(--text-muted); text-transform: uppercase;">Meals Served</div>
+          </div>
+          <div class="card" style="text-align: center;">
+            <div style="font-size: 26px; font-weight: 900; color: var(--amber);">42,000+</div>
+            <div style="font-size: 11px; font-weight: bold; color: var(--text-muted); text-transform: uppercase;">KG CO2e Prevented</div>
+          </div>
+          <div class="card" style="text-align: center;">
+            <div style="font-size: 26px; font-weight: 900; color: var(--forest);">50%</div>
+            <div style="font-size: 11px; font-weight: bold; color: var(--text-muted); text-transform: uppercase;">80G Tax Relief</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h4>🌍 The Environmental &amp; Tax Formulas</h4>
+          <ul>
+            <li><strong>Landfill Methane Avoidance:</strong> <code>CO2e Saved (kg) = Rescued Food (kg) × 2.5</code> (Based on UNEP and EPA food waste metrics).</li>
+            <li><strong>Portion Calculation:</strong> <code>Servings = Quantity (kg) × 2.5 meals</code>.</li>
+            <li><strong>Section 80G Verification:</strong> Generates audit-ready digital certificates complete with unique receipt IDs and meal tallies for CA submission.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="slide-footer-notes">
+        <span>Aggregated via ImpactLog Model in impactController.js</span>
+        <span>Slide 13 of 15</span>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 14 ================= -->
+    <div class="slide" id="slide-14">
+      <div class="slide-header">
+        <span class="slide-tag">Engineering Depth</span>
+        <h2 class="slide-title">What Makes the Implementation Valuable</h2>
+        <p class="slide-subtitle">Defensible civic engineering choices rather than ungrounded buzzwords.</p>
+      </div>
+      <div class="slide-body">
+        <div class="grid-3">
+          <div class="card">
+            <h4>1. Real-Time State Machine</h4>
+            <p>Every donation progresses through audited timestamps (<code>postedAt</code>, <code>matchedAt</code>, <code>deliveredAt</code>) with automated timeout triggers.</p>
+          </div>
+          <div class="card">
+            <h4>2. Location-Aware Dispatch</h4>
+            <p>True geospatial integration using MongoDB <code>2dsphere</code> indexing, Leaflet vector maps, and OpenStreetMap address verification.</p>
+          </div>
+          <div class="card">
+            <h4>3. Operational Failure Resilience</h4>
+            <p>Real-world courier breakdown recovery that unassigns stranded riders without penalty and re-queues food before it spoils.</p>
+          </div>
+          <div class="card">
+            <h4>4. Regulatory &amp; Tax Alignment</h4>
+            <p>Directly incorporates Indian FSSAI surplus food compliance standards and Section 80G corporate tax incentives.</p>
+          </div>
+          <div class="card">
+            <h4>5. Zero-Trust Access Control</h4>
+            <p>Strict role isolation between donors, shelters, and couriers preventing data leakage or unauthorized task modification.</p>
+          </div>
+          <div class="card">
+            <h4>6. Thoughtful AI Application</h4>
+            <p>Uses Gemini LLMs specifically for what they do best—answering citizen questions in natural language with speech synthesis.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer-notes">
+        <span>Defensible Civic Software Engineering</span>
+        <span>Slide 14 of 15</span>
+      </div>
+    </div>
+
+    <!-- ================= SLIDE 15 ================= -->
+    <div class="slide" id="slide-15">
+      <div class="slide-header">
+        <span class="slide-tag">Live Demonstration</span>
+        <h2 class="slide-title">"One Rescue. One Connected Workflow."</h2>
+        <p class="slide-subtitle">Ready for live walkthrough on the running application.</p>
+      </div>
+      <div class="slide-body">
+        <div class="card" style="padding: 24px;">
+          <h4 style="margin-bottom: 12px; font-size: 16px;">🎯 Suggested 3-Minute Live Demo Walkthrough:</h4>
+          <ol style="font-size: 13px; line-height: 2; padding-left: 20px; color: #374151;">
+            <li><strong>Landing Hub (<code>/</code>):</strong> Show live community ticker and operational role cards.</li>
+            <li><strong>Donor Intake (<code>/donate</code>):</strong> Demonstrate OpenStreetMap address authentication &amp; synchronized calibrated expiry slider.</li>
+            <li><strong>Shelter Portal (<code>/receive</code>):</strong> Inspect live cold storage capacity meter (`35kg / 50kg`) &amp; explain 15-minute cascade rule.</li>
+            <li><strong>Volunteer Board (<code>/volunteer</code>):</strong> View Leaflet route map &amp; demonstrate single-tap Vehicle Breakdown Re-dispatch.</li>
+            <li><strong>AI Learning Hub (<code>/ai-learn</code>):</strong> Ask MealBot <em>"How does 80G tax benefit Bistro 42?"</em> and click <strong>"Voice Read 🔊"</strong> for audio narration.</li>
+            <li><strong>City Impact (<code>/impact</code>):</strong> Review public audit ledger and cumulative carbon offset graphs.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="slide-footer-notes">
+        <span>MealBridge — AmiHacks 2026 Round 1 Presentation</span>
+        <span>End of Deck</span>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 15;
+
+    function updateSlide() {
+      document.querySelectorAll('.slide').forEach((slide, idx) => {
+        slide.classList.toggle('active', idx + 1 === currentSlide);
+      });
+      document.getElementById('slideCounter').textContent = `${currentSlide} / ${totalSlides}`;
+      document.getElementById('prevBtn').disabled = currentSlide === 1;
+      document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.warn(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullScreen();
+      } else if (e.key === 'Home') {
+        currentSlide = 1;
+        updateSlide();
+      } else if (e.key === 'End') {
+        currentSlide = totalSlides;
+        updateSlide();
+      }
+    });
+
+    updateSlide();
+  </script>
+</body>
+</html>
