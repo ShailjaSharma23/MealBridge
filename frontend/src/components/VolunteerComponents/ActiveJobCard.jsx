@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Truck,
   Store,
@@ -27,6 +27,24 @@ const ActiveJobCard = ({ activeJob, onJobUpdated, onPreviewDemo }) => {
   );
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
+
+  // Vehicle Malfunction State - declared at top level to strictly obey Rules of Hooks
+  const [showBreakdownModal, setShowBreakdownModal] = useState(false);
+  const [breakdownReason, setBreakdownReason] = useState('Flat Tyre / Puncture');
+  const [breakdownNotes, setBreakdownNotes] = useState('');
+  const [breakdownLocation, setBreakdownLocation] = useState('Outer Ring Road, Near AIIMS Flyover, New Delhi');
+  const [detectingLoc, setDetectingLoc] = useState(false);
+  const [reportingBreakdown, setReportingBreakdown] = useState(false);
+  const [isBreakdownReported, setIsBreakdownReported] = useState(false);
+  const [breakdownDetails, setBreakdownDetails] = useState(null);
+
+  useEffect(() => {
+    if (activeJob) {
+      setJobStep(
+        activeJob.status === 'delivered' ? 3 : activeJob.status === 'volunteer_assigned' ? 1 : 0
+      );
+    }
+  }, [activeJob?.status, activeJob?._id]);
 
   if (!activeJob) {
     return (
@@ -57,7 +75,7 @@ const ActiveJobCard = ({ activeJob, onJobUpdated, onPreviewDemo }) => {
           <button
             type="button"
             onClick={onPreviewDemo}
-            className="btn-sage py-3 px-6 rounded-2xl text-xs font-bold shadow-xs hover:shadow-sm shrink-0 whitespace-nowrap self-stretch sm:self-auto text-center"
+            className="btn-sage py-3 px-6 rounded-2xl text-xs font-bold shadow-xs hover:shadow-sm shrink-0 whitespace-nowrap self-stretch sm:self-auto text-center cursor-pointer"
           >
             <span>Preview Active Route Demo (JOB-104)</span>
           </button>
@@ -65,16 +83,6 @@ const ActiveJobCard = ({ activeJob, onJobUpdated, onPreviewDemo }) => {
       </div>
     );
   }
-
-  // Vehicle Malfunction State
-  const [showBreakdownModal, setShowBreakdownModal] = useState(false);
-  const [breakdownReason, setBreakdownReason] = useState('Flat Tyre / Puncture');
-  const [breakdownNotes, setBreakdownNotes] = useState('');
-  const [breakdownLocation, setBreakdownLocation] = useState('Outer Ring Road, Near AIIMS Flyover, New Delhi');
-  const [detectingLoc, setDetectingLoc] = useState(false);
-  const [reportingBreakdown, setReportingBreakdown] = useState(false);
-  const [isBreakdownReported, setIsBreakdownReported] = useState(false);
-  const [breakdownDetails, setBreakdownDetails] = useState(null);
 
   const handleNextStep = async () => {
     setLoading(true);
