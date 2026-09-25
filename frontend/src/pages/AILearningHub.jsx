@@ -38,7 +38,7 @@ const AILearningHub = () => {
         </div>
 
         {/* Right Column: Expiry Risk Calculator (5 cols) */}
-        <div className="lg:col-span-5">
+        <div id="expiry-calculator" className="lg:col-span-5 scroll-mt-24">
           <ExpiryCalculator />
         </div>
       </div>
