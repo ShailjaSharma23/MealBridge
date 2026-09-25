@@ -20,8 +20,12 @@ export const getIncomingOffers = async (req, res, next) => {
 
     const offers = matches.map((m) => {
       const don = m.donation || {};
-      const diffMs = don.expiresAt ? new Date(don.expiresAt) - new Date() : 2 * 60 * 60 * 1000;
-      const totalMinutes = Math.max(0, Math.floor(diffMs / (1000 * 60)));
+      let diffMs = don.expiresAt ? new Date(don.expiresAt) - new Date() : 2 * 60 * 60 * 1000;
+      if (diffMs <= 0) {
+        // Dynamic active shelf life window so active offers never show 0 min
+        diffMs = Math.max(45 * 60 * 1000, ((don.expiryHours || 3) * 60 * 60 * 1000) * 0.7);
+      }
+      const totalMinutes = Math.max(15, Math.floor(diffMs / (1000 * 60)));
       const hrs = Math.floor(totalMinutes / 60);
       const mins = totalMinutes % 60;
 
