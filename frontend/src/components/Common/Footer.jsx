@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Github, ExternalLink } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -33,23 +32,13 @@ const Footer = () => {
           </div>
 
           {/* Quick Links */}
-          <div className="flex flex-wrap justify-center gap-6 text-xs font-semibold text-forest/70">
+          <div className="flex flex-wrap justify-center md:justify-end gap-6 text-xs font-semibold text-forest/70">
             <Link to="/" className="hover:text-forest transition-colors">Home</Link>
             <Link to="/donate" className="hover:text-forest transition-colors">Donate Food</Link>
             <Link to="/receive" className="hover:text-forest transition-colors">Shelter Portal</Link>
             <Link to="/volunteer" className="hover:text-forest transition-colors">Volunteer Board</Link>
             <Link to="/ai-learn" className="hover:text-forest transition-colors">AI Learning Hub</Link>
             <Link to="/impact" className="hover:text-forest transition-colors">City Impact</Link>
-          </div>
-
-          {/* Team & Hackathon Badges */}
-          <div className="flex flex-col items-center md:items-end gap-1.5">
-            <div className="text-xs font-medium text-forest/60 flex items-center gap-1">
-              Crafted with <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500 inline" /> for AmiHacks 1.0
-            </div>
-            <div className="text-[11px] text-forest/50">
-              By Yash Bhatt, Shailja Sharma & Team
-            </div>
           </div>
         </div>
 
