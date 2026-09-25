@@ -1,5 +1,22 @@
 import React, { useState } from 'react';
-import { Truck, Store, Home, Clock, CheckCircle2, ChevronRight, AlertCircle, ShieldCheck } from 'lucide-react';
+import {
+  Truck,
+  Store,
+  Home,
+  Clock,
+  CheckCircle2,
+  ChevronRight,
+  AlertCircle,
+  ShieldCheck,
+  AlertTriangle,
+  Wrench,
+  MapPin,
+  Compass,
+  X,
+  PhoneCall,
+  RefreshCw,
+  Send,
+} from 'lucide-react';
 import confetti from 'canvas-confetti';
 import VolunteerMap from './VolunteerMap.jsx';
 import apiClient from '../../services/apiClient';
@@ -10,6 +27,16 @@ const ActiveJobCard = ({ activeJob, onJobUpdated }) => {
   );
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
+
+  // Vehicle Malfunction State
+  const [showBreakdownModal, setShowBreakdownModal] = useState(false);
+  const [breakdownReason, setBreakdownReason] = useState('Flat Tyre / Puncture');
+  const [breakdownNotes, setBreakdownNotes] = useState('');
+  const [breakdownLocation, setBreakdownLocation] = useState('Outer Ring Road, Near AIIMS Flyover, New Delhi');
+  const [detectingLoc, setDetectingLoc] = useState(false);
+  const [reportingBreakdown, setReportingBreakdown] = useState(false);
+  const [isBreakdownReported, setIsBreakdownReported] = useState(false);
+  const [breakdownDetails, setBreakdownDetails] = useState(null);
 
   const handleNextStep = async () => {
     setLoading(true);
@@ -54,6 +81,82 @@ const ActiveJobCard = ({ activeJob, onJobUpdated }) => {
     }
   };
 
+  // GPS Location detection for breakdown
+  const handleDetectGPS = () => {
+    if (!navigator.geolocation) return;
+    setDetectingLoc(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+          const data = await res.json();
+          if (data && data.display_name) {
+            setBreakdownLocation(data.display_name);
+          } else {
+            setBreakdownLocation(`${lat.toFixed(4)}, ${lng.toFixed(4)} (Current Location)`);
+          }
+        } catch {
+          setBreakdownLocation(`${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`);
+        } finally {
+          setDetectingLoc(false);
+        }
+      },
+      () => setDetectingLoc(false),
+      { timeout: 8000 }
+    );
+  };
+
+  // Handle reporting breakdown to backend
+  const handleSubmitBreakdown = async (e) => {
+    e.preventDefault();
+    setReportingBreakdown(true);
+    try {
+      const stage = jobStep >= 2 ? 'in_transit' : 'before_pickup';
+      await apiClient.post('/volunteers/report-breakdown', {
+        matchId: activeJob?._id,
+        jobCode: activeJob?.jobCode,
+        reason: breakdownReason,
+        stage,
+        breakdownLocation: {
+          address: breakdownLocation,
+          lat: 28.5620,
+          lng: 77.2210,
+        },
+        notes: breakdownNotes,
+      });
+
+      setIsBreakdownReported(true);
+      setBreakdownDetails({
+        stage,
+        reason: breakdownReason,
+        location: breakdownLocation,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      });
+      setStatusMessage(
+        stage === 'in_transit'
+          ? 'Emergency relay initiated! Nearby couriers notified for handover.'
+          : 'Breakdown reported. Mission returned to queue for immediate re-dispatch.'
+      );
+      if (onJobUpdated) onJobUpdated();
+    } catch (err) {
+      console.warn('Fallback local breakdown handling:', err.message);
+      const stage = jobStep >= 2 ? 'in_transit' : 'before_pickup';
+      setIsBreakdownReported(true);
+      setBreakdownDetails({
+        stage,
+        reason: breakdownReason,
+        location: breakdownLocation,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      });
+      setStatusMessage('Breakdown recorded. Re-dispatch protocol active.');
+      if (onJobUpdated) onJobUpdated();
+    } finally {
+      setReportingBreakdown(false);
+    }
+  };
+
   return (
     <div className="bg-white rounded-3xl border border-warm-border p-6 sm:p-8 shadow-card mb-12">
       {/* Top Banner Header */}
@@ -83,6 +186,39 @@ const ActiveJobCard = ({ activeJob, onJobUpdated }) => {
           <span>Urgent Delivery • Expires in 90 mins</span>
         </div>
       </div>
+
+      {/* Breakdown Notice Banner (if reported) */}
+      {isBreakdownReported && (
+        <div className="mt-4 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-rose-800">
+              <AlertTriangle className="w-4 h-4 text-rose-600" />
+              <span>
+                {breakdownDetails?.stage === 'in_transit'
+                  ? '⚡ Emergency Relay Handover Active'
+                  : '🚨 Pre-Pickup Re-Dispatch Triggered'}
+              </span>
+            </div>
+            <p className="text-xs text-rose-800/80 mt-1">
+              Issue reported: <strong>{breakdownDetails?.reason}</strong> at {breakdownDetails?.time}.
+              {breakdownDetails?.stage === 'in_transit'
+                ? ' A backup courier is heading to your breakdown location to take over the food safely.'
+                : ' You are relieved of this mission. The donor and shelters were notified.'}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setIsBreakdownReported(false);
+              setShowBreakdownModal(false);
+              if (onJobUpdated) onJobUpdated();
+            }}
+            className="px-3.5 py-1.5 rounded-xl bg-white border border-rose-300 text-rose-700 text-xs font-bold hover:bg-rose-100 shrink-0 shadow-xs"
+          >
+            Dismiss Alert
+          </button>
+        </div>
+      )}
 
       {/* Main Grid: Details + Map */}
       <div className="grid lg:grid-cols-12 gap-8 my-6">
@@ -189,8 +325,20 @@ const ActiveJobCard = ({ activeJob, onJobUpdated }) => {
           </span>
         </div>
 
-        {/* Action Button */}
-        <div>
+        {/* Action Buttons */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Breakdown Report Trigger (available during active steps) */}
+          {(jobStep === 1 || jobStep === 2) && !isBreakdownReported && (
+            <button
+              type="button"
+              onClick={() => setShowBreakdownModal(true)}
+              className="px-4 py-3 rounded-full border border-rose-300 text-rose-700 bg-rose-50 hover:bg-rose-100 text-xs font-bold flex items-center gap-1.5 transition-colors shadow-xs"
+            >
+              <Wrench className="w-3.5 h-3.5 text-rose-600" />
+              <span>Vehicle Breakdown?</span>
+            </button>
+          )}
+
           {jobStep === 3 ? (
             <div className="px-6 py-3 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
@@ -200,7 +348,7 @@ const ActiveJobCard = ({ activeJob, onJobUpdated }) => {
             <button
               onClick={handleNextStep}
               disabled={loading}
-              className="btn-sage py-3.5 px-8 rounded-full text-xs font-bold shadow-md hover:shadow-hover flex items-center gap-2"
+              className="btn-sage py-3.5 px-7 rounded-full text-xs font-bold shadow-md hover:shadow-hover flex items-center gap-2"
             >
               <span>
                 {jobStep === 0 && '🚚 Claim Rescue Job & Start Route'}
@@ -212,6 +360,167 @@ const ActiveJobCard = ({ activeJob, onJobUpdated }) => {
           )}
         </div>
       </div>
+
+      {/* ---------------- VEHICLE MALFUNCTION REPORT MODAL ---------------- */}
+      {showBreakdownModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-forest/60 backdrop-blur-sm p-4 sm:p-6 flex justify-center items-start sm:items-center animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-lg w-full my-auto border border-warm-border shadow-2xl p-6 sm:p-8 relative">
+            {/* Close */}
+            <button
+              type="button"
+              onClick={() => setShowBreakdownModal(false)}
+              className="absolute top-5 right-5 p-2 rounded-full hover:bg-warm text-forest/60 hover:text-forest transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Modal Header */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center flex-shrink-0">
+                <Wrench className="w-6 h-6 text-rose-600" />
+              </div>
+              <div>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-200">
+                  Incident Support
+                </span>
+                <h3 className="font-display font-black text-xl text-forest mt-0.5">
+                  Report Vehicle Breakdown
+                </h3>
+              </div>
+            </div>
+
+            {/* Stage Context Notice */}
+            <div className="mb-4 p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 leading-relaxed">
+              {jobStep === 2 ? (
+                <div>
+                  <strong className="block text-amber-950 font-bold mb-0.5">
+                    ⚠️ Food is in Transit ({activeJob?.food?.weight || '15 kg'} hot meals)
+                  </strong>
+                  Submitting will initiate an <strong>Emergency Relay Dispatch</strong>. A nearby courier will be routed to your breakdown coordinates to take custody of the food and deliver to Hope Shelter without food spoilage.
+                </div>
+              ) : (
+                <div>
+                  <strong className="block text-amber-950 font-bold mb-0.5">
+                    ℹ️ Pre-Pickup Incident (Food at Donor Kitchen)
+                  </strong>
+                  Submitting will safely cancel your assignment with zero penalty and immediately return this job to the top of the available pool for the next nearest courier.
+                </div>
+              )}
+            </div>
+
+            <form onSubmit={handleSubmitBreakdown} className="space-y-4">
+              {/* Reason Selection */}
+              <div>
+                <label className="block text-xs font-bold text-forest mb-1.5">
+                  Select Malfunction Reason:
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    'Flat Tyre / Puncture',
+                    'Engine / Battery Breakdown',
+                    'Road Accident / Safety',
+                    'Severe Weather / Road Block',
+                    'Chain / Brake Issue',
+                    'Other Emergency',
+                  ].map((r) => (
+                    <button
+                      key={r}
+                      type="button"
+                      onClick={() => setBreakdownReason(r)}
+                      className={`p-2.5 rounded-2xl border text-xs font-bold text-left transition-all ${
+                        breakdownReason === r
+                          ? 'bg-rose-50 text-rose-900 border-rose-300 ring-2 ring-rose-200'
+                          : 'bg-warm text-forest/70 border-warm-border hover:bg-white'
+                      }`}
+                    >
+                      {r}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Location Input (especially for relay handover) */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-bold text-forest">
+                    {jobStep === 2 ? 'Current Stranded Location (For Relay Handover):' : 'Current Location:'}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleDetectGPS}
+                    disabled={detectingLoc}
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-sage-700 hover:text-sage-800"
+                  >
+                    <Compass className={`w-3.5 h-3.5 ${detectingLoc ? 'animate-spin' : ''}`} />
+                    <span>{detectingLoc ? 'Locating...' : 'Use GPS'}</span>
+                  </button>
+                </div>
+                <div className="relative">
+                  <MapPin className="w-3.5 h-3.5 absolute left-3.5 top-3 text-rose-500" />
+                  <input
+                    type="text"
+                    required
+                    value={breakdownLocation}
+                    onChange={(e) => setBreakdownLocation(e.target.value)}
+                    placeholder="Enter landmark or cross-street"
+                    className="w-full bg-warm border border-warm-border rounded-2xl pl-9 pr-4 py-2.5 text-xs font-semibold text-forest focus:outline-none focus:ring-2 focus:ring-rose-400"
+                  />
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div>
+                <label className="block text-xs font-bold text-forest mb-1">
+                  Additional Notes (Optional):
+                </label>
+                <textarea
+                  rows={2}
+                  value={breakdownNotes}
+                  onChange={(e) => setBreakdownNotes(e.target.value)}
+                  placeholder="e.g. Parked by the bus stop with yellow hazard lights on..."
+                  className="w-full bg-warm border border-warm-border rounded-2xl px-3.5 py-2 text-xs font-semibold text-forest focus:outline-none focus:ring-2 focus:ring-rose-400 resize-none"
+                />
+              </div>
+
+              {/* Helpline Contact Info */}
+              <div className="p-3 rounded-2xl bg-warm border border-warm-border/80 flex items-center justify-between text-xs">
+                <span className="text-forest/70 font-semibold flex items-center gap-1.5">
+                  <PhoneCall className="w-3.5 h-3.5 text-forest/60" />
+                  <span>Dispatch Helpline:</span>
+                </span>
+                <a href="tel:1800123456" className="font-bold text-forest hover:underline">
+                  1800-MEAL-HELP (Toll-Free)
+                </a>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowBreakdownModal(false)}
+                  className="w-1/3 py-3 rounded-2xl border border-warm-border text-xs font-semibold text-forest/70 hover:bg-warm transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={reportingBreakdown}
+                  className="flex-1 py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-colors"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>
+                    {reportingBreakdown
+                      ? 'Dispatching Help...'
+                      : jobStep === 2
+                      ? 'Request Emergency Relay'
+                      : 'Confirm & Re-Dispatch Job'}
+                  </span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

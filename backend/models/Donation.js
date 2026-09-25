@@ -63,7 +63,16 @@ const donationSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['posted', 'matched', 'volunteer_assigned', 'picked_up', 'delivered', 'expired'],
+      enum: [
+        'posted',
+        'matched',
+        'volunteer_assigned',
+        'picked_up',
+        'delivered',
+        'expired',
+        're_dispatch_needed',
+        'relay_needed',
+      ],
       default: 'posted',
     },
     assignedShelter: {

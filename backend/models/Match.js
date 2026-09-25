@@ -31,8 +31,31 @@ const matchSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['offered', 'accepted', 'passed', 'volunteer_assigned', 'in_transit', 'delivered', 'expired'],
+      enum: [
+        'offered',
+        'accepted',
+        'passed',
+        'volunteer_assigned',
+        'in_transit',
+        'delivered',
+        'expired',
+        're_dispatch_needed',
+        'relay_needed',
+      ],
       default: 'offered',
+    },
+    breakdownIncident: {
+      reported: { type: Boolean, default: false },
+      stage: { type: String, enum: ['before_pickup', 'in_transit'], default: null },
+      reason: { type: String, default: '' },
+      reportedAt: { type: Date, default: null },
+      location: {
+        lat: Number,
+        lng: Number,
+        address: String,
+      },
+      notes: { type: String, default: '' },
+      originalVolunteerName: { type: String, default: '' },
     },
     distanceKm: {
       type: Number,

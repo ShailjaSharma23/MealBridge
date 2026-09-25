@@ -12,7 +12,7 @@ export const getAvailableJobs = async (req, res, next) => {
   try {
     const { filter } = req.query; // 'all', 'near_me', 'urgent'
     let query = {
-      status: { $in: ['accepted', 'volunteer_assigned', 'offered'] },
+      status: { $in: ['accepted', 'volunteer_assigned', 'offered', 're_dispatch_needed', 'relay_needed'] },
     };
 
     if (filter === 'urgent') {
@@ -22,7 +22,8 @@ export const getAvailableJobs = async (req, res, next) => {
     let matches = await Match.find(query)
       .populate('donation')
       .populate('donor', 'name phone location')
-      .populate('shelter', 'name phone location');
+      .populate('shelter', 'name phone location')
+      .sort({ updatedAt: -1 });
 
     if (filter === 'near_me') {
       matches = matches.filter((m) => (m.distanceKm || 0) <= 3.0);
@@ -30,8 +31,15 @@ export const getAvailableJobs = async (req, res, next) => {
 
     const jobs = matches.map((m) => {
       const don = m.donation || {};
-      const diffMs = don.expiresAt ? new Date(don.expiresAt) - new Date() : 2 * 60 * 60 * 1000;
-      const hoursRemaining = Math.max(0, (diffMs / (1000 * 60 * 60)).toFixed(1));
+      let diffMs = don.expiresAt ? new Date(don.expiresAt) - new Date() : 2.5 * 60 * 60 * 1000;
+      if (diffMs <= 0) {
+        // Dynamic fallback for active demo jobs so they don't show 0.0 hours remaining
+        diffMs = Math.max(1.2 * 60 * 60 * 1000, ((don.expiryHours || 3) * 60 * 60 * 1000) * 0.7);
+      }
+      const hoursRemaining = Math.max(0.5, (diffMs / (1000 * 60 * 60))).toFixed(1);
+
+      const isRelay = m.status === 'relay_needed';
+      const isRedispatch = m.status === 're_dispatch_needed';
 
       return {
         _id: m._id,
@@ -42,7 +50,7 @@ export const getAvailableJobs = async (req, res, next) => {
           address: m.pickupLocation?.address || '123, Green Park, Sector 12, New Delhi',
           lat: m.pickupLocation?.lat || 28.5582,
           lng: m.pickupLocation?.lng || 77.2023,
-          distanceKm: 1.2,
+          distanceKm: isRelay ? 0.8 : 1.2,
         },
         dropoffLocation: {
           name: m.dropoffLocation?.name || 'Hope Shelter',
@@ -58,8 +66,11 @@ export const getAvailableJobs = async (req, res, next) => {
           hoursRemaining: `${hoursRemaining} hours remaining`,
         },
         status: m.status,
-        isUrgent: m.isUrgent || hoursRemaining < 2,
+        isUrgent: m.isUrgent || hoursRemaining < 2 || isRelay || isRedispatch,
         isClaimed: m.status === 'volunteer_assigned',
+        isRelay,
+        isRedispatch,
+        breakdownIncident: m.breakdownIncident || null,
       };
     });
 
@@ -141,11 +152,18 @@ export const claimRescueJob = async (req, res, next) => {
 
     const volunteer = (await User.findOne({ role: 'volunteer' })) || (await User.findOne());
     match.volunteer = volunteer._id;
-    match.status = 'volunteer_assigned';
+
+    // If this was an emergency relay where food was already picked up, courier resumes transit
+    if (match.status === 'relay_needed') {
+      match.status = 'in_transit';
+    } else {
+      match.status = 'volunteer_assigned';
+    }
+
     await match.save();
 
     if (match.donation) {
-      match.donation.status = 'volunteer_assigned';
+      match.donation.status = match.status;
       match.donation.assignedVolunteer = volunteer._id;
       match.donation.trackingTimestamps.volunteerAssignedAt = new Date();
       await match.donation.save();
@@ -154,6 +172,93 @@ export const claimRescueJob = async (req, res, next) => {
     res.json({
       success: true,
       message: `Rescue job ${match.jobCode} claimed successfully! Navigation route active.`,
+      match,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc   Report rider vehicle malfunction and trigger emergency re-dispatch or relay
+ * @route  POST /api/volunteers/report-breakdown
+ * @access Public / Volunteer
+ */
+export const reportVehicleBreakdown = async (req, res, next) => {
+  try {
+    const { matchId, jobCode, reason, stage, breakdownLocation, notes } = req.body;
+
+    let match = null;
+    if (matchId) {
+      match = await Match.findById(matchId).populate('donation');
+    }
+    if (!match && jobCode) {
+      match = await Match.findOne({ jobCode }).populate('donation');
+    }
+    if (!match) {
+      // Demo fallback match
+      match = await Match.findOne({ status: { $in: ['volunteer_assigned', 'in_transit', 'accepted'] } }).populate('donation');
+    }
+
+    if (!match) {
+      return res.status(404).json({ success: false, message: 'Active rescue job not found' });
+    }
+
+    const isMidTransit = stage === 'in_transit' || match.status === 'in_transit';
+
+    match.breakdownIncident = {
+      reported: true,
+      stage: isMidTransit ? 'in_transit' : 'before_pickup',
+      reason: reason || 'Vehicle Malfunction (Mechanical / Battery)',
+      reportedAt: new Date(),
+      location: breakdownLocation || {
+        lat: 28.5620,
+        lng: 77.2210,
+        address: 'Midpoint Breakdown: Outer Ring Road Near AIIMS, New Delhi',
+      },
+      notes: notes || 'Rider reported breakdown. Emergency re-dispatch initiated.',
+      originalVolunteerName: 'Courier Volunteer',
+    };
+
+    match.isUrgent = true;
+
+    if (isMidTransit) {
+      // Courier already has the food in custody! Needs emergency relay handover.
+      match.status = 'relay_needed';
+      // Set pickup location to where the stranded courier is waiting
+      if (breakdownLocation?.address) {
+        match.pickupLocation = {
+          name: 'Relay Point (Stranded Courier)',
+          address: breakdownLocation.address,
+          lat: breakdownLocation.lat || 28.5620,
+          lng: breakdownLocation.lng || 77.2210,
+        };
+      }
+      if (match.donation) {
+        match.donation.status = 'relay_needed';
+        match.donation.notes = `Emergency Relay: Food is with stranded courier at ${breakdownLocation?.address || 'Midway'}. Reason: ${reason}`;
+        await match.donation.save();
+      }
+    } else {
+      // Courier broke down before picking up food! Re-dispatch to food donor directly.
+      match.status = 're_dispatch_needed';
+      match.volunteer = null;
+      if (match.donation) {
+        match.donation.status = 're_dispatch_needed';
+        match.donation.assignedVolunteer = null;
+        match.donation.notes = `Courier breakdown before pickup (${reason}). Re-dispatching to nearest backup courier.`;
+        await match.donation.save();
+      }
+    }
+
+    await match.save();
+
+    res.json({
+      success: true,
+      stage: isMidTransit ? 'in_transit' : 'before_pickup',
+      message: isMidTransit
+        ? 'Vehicle breakdown reported. Emergency Relay Dispatch activated: nearby couriers notified for handover.'
+        : 'Vehicle breakdown reported. Job re-opened for immediate re-dispatch to backup couriers.',
       match,
     });
   } catch (error) {

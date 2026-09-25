@@ -132,6 +132,7 @@ const VolunteerPortal = () => {
 
   const handleJobUpdated = () => {
     fetchActiveJob();
+    fetchJobs(activeFilter);
     fetchStats();
   };
 
