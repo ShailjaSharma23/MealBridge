@@ -98,64 +98,77 @@ const ESGCertificateCard = () => {
 
       {/* Certificate Modal Dialog */}
       {modalOpen && certData && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-          <div className="relative w-full max-w-xl bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border-4 border-sage-300">
-            {/* Close Button */}
-            <button
-              onClick={() => setModalOpen(false)}
-              className="absolute top-4 right-4 p-2 text-forest/40 hover:text-forest rounded-full hover:bg-warm"
+        <div
+          className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm animate-in fade-in"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setModalOpen(false);
+          }}
+        >
+          <div className="min-h-full flex items-center justify-center p-3 sm:p-6 text-center sm:text-left">
+            <div
+              className="relative w-full max-w-xl my-6 sm:my-8 bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border-4 border-sage-300 text-left"
+              onClick={(e) => e.stopPropagation()}
             >
-              <X className="w-5 h-5" />
-            </button>
-
-            {/* Certificate Layout */}
-            <div className="text-center pb-6 border-b border-warm-border">
-              <div className="w-14 h-14 mx-auto rounded-full bg-sage-100 text-sage-700 flex items-center justify-center mb-2">
-                <Award className="w-7 h-7" />
-              </div>
-              <div className="text-xs font-bold uppercase tracking-widest text-sage-600">Official Impact Document</div>
-              <h2 className="font-display font-black text-2xl text-forest mt-1">Certificate of Food Diversion & ESG Contribution</h2>
-              <div className="text-xs text-forest/50 font-mono mt-1">Certificate ID: {certData.certificateNumber}</div>
-            </div>
-
-            <div className="py-6 space-y-4 text-xs sm:text-sm text-forest">
-              <div className="flex justify-between border-b border-warm-border/60 pb-2">
-                <span className="text-forest/60 font-semibold">Awarded To (Donor):</span>
-                <span className="font-bold text-forest">{certData.donorName}</span>
-              </div>
-              <div className="flex justify-between border-b border-warm-border/60 pb-2">
-                <span className="text-forest/60 font-semibold">Beneficiary Shelter:</span>
-                <span className="font-bold text-forest">{certData.recipientShelter}</span>
-              </div>
-              <div className="flex justify-between border-b border-warm-border/60 pb-2">
-                <span className="text-forest/60 font-semibold">Food Quantity Rescued:</span>
-                <span className="font-bold text-emerald-700">{certData.quantityRescuedKg} kg (~{certData.approxMealsProvided} Meals)</span>
-              </div>
-              <div className="flex justify-between border-b border-warm-border/60 pb-2">
-                <span className="text-forest/60 font-semibold">Emissions Avoided:</span>
-                <span className="font-bold text-sage-700">{certData.co2DivertedKg} kg CO₂e</span>
-              </div>
-              <div className="flex justify-between border-b border-warm-border/60 pb-2">
-                <span className="text-forest/60 font-semibold">Tax Compliance:</span>
-                <span className="font-semibold text-sunburst-700">{certData.taxDeductionCategory}</span>
-              </div>
-              <div className="flex justify-between pt-1">
-                <span className="text-forest/60 font-semibold">Date of Issuance:</span>
-                <span className="font-medium text-forest/70">{certData.issueDate}</span>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-warm-border flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-xs text-sage-700 font-semibold">
-                <CheckCircle className="w-4 h-4 text-emerald-600" />
-                <span>Digitally Verified by MealBridge Platform 🌉</span>
-              </div>
+              {/* Close Button */}
               <button
                 onClick={() => setModalOpen(false)}
-                className="btn-sage text-xs px-5 py-2 rounded-full"
+                type="button"
+                aria-label="Close Certificate Dialog"
+                className="absolute top-4 right-4 p-2 text-forest/40 hover:text-forest rounded-full hover:bg-warm z-10"
               >
-                Close Certificate
+                <X className="w-5 h-5" />
               </button>
+
+              {/* Certificate Layout */}
+              <div className="text-center pb-6 border-b border-warm-border">
+                <div className="w-14 h-14 mx-auto rounded-full bg-sage-100 text-sage-700 flex items-center justify-center mb-2">
+                  <Award className="w-7 h-7" />
+                </div>
+                <div className="text-xs font-bold uppercase tracking-widest text-sage-600">Official Impact Document</div>
+                <h2 className="font-display font-black text-2xl text-forest mt-1">Certificate of Food Diversion & ESG Contribution</h2>
+                <div className="text-xs text-forest/50 font-mono mt-1">Certificate ID: {certData.certificateNumber}</div>
+              </div>
+
+              <div className="py-6 space-y-4 text-xs sm:text-sm text-forest">
+                <div className="flex justify-between border-b border-warm-border/60 pb-2">
+                  <span className="text-forest/60 font-semibold">Awarded To (Donor):</span>
+                  <span className="font-bold text-forest">{certData.donorName}</span>
+                </div>
+                <div className="flex justify-between border-b border-warm-border/60 pb-2">
+                  <span className="text-forest/60 font-semibold">Beneficiary Shelter:</span>
+                  <span className="font-bold text-forest">{certData.recipientShelter}</span>
+                </div>
+                <div className="flex justify-between border-b border-warm-border/60 pb-2">
+                  <span className="text-forest/60 font-semibold">Food Quantity Rescued:</span>
+                  <span className="font-bold text-emerald-700">{certData.quantityRescuedKg} kg (~{certData.approxMealsProvided} Meals)</span>
+                </div>
+                <div className="flex justify-between border-b border-warm-border/60 pb-2">
+                  <span className="text-forest/60 font-semibold">Emissions Avoided:</span>
+                  <span className="font-bold text-sage-700">{certData.co2DivertedKg} kg CO₂e</span>
+                </div>
+                <div className="flex justify-between border-b border-warm-border/60 pb-2">
+                  <span className="text-forest/60 font-semibold">Tax Compliance:</span>
+                  <span className="font-semibold text-sunburst-700">{certData.taxDeductionCategory}</span>
+                </div>
+                <div className="flex justify-between pt-1">
+                  <span className="text-forest/60 font-semibold">Date of Issuance:</span>
+                  <span className="font-medium text-forest/70">{certData.issueDate}</span>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-warm-border flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-xs text-sage-700 font-semibold">
+                  <CheckCircle className="w-4 h-4 text-emerald-600" />
+                  <span>Digitally Verified by MealBridge Platform 🌉</span>
+                </div>
+                <button
+                  onClick={() => setModalOpen(false)}
+                  type="button"
+                  className="btn-sage text-xs px-5 py-2 rounded-full"
+                >
+                  Close Certificate
+                </button>
+              </div>
             </div>
           </div>
         </div>

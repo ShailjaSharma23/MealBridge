@@ -409,16 +409,25 @@ const ActiveJobCard = ({ activeJob, onJobUpdated, onPreviewDemo }) => {
 
       {/* ---------------- VEHICLE MALFUNCTION REPORT MODAL ---------------- */}
       {showBreakdownModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-forest/60 backdrop-blur-sm p-4 sm:p-6 flex justify-center items-start sm:items-center animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-lg w-full my-auto border border-warm-border shadow-2xl p-6 sm:p-8 relative">
-            {/* Close */}
-            <button
-              type="button"
-              onClick={() => setShowBreakdownModal(false)}
-              className="absolute top-5 right-5 p-2 rounded-full hover:bg-warm text-forest/60 hover:text-forest transition-colors"
+        <div
+          className="fixed inset-0 z-50 overflow-y-auto bg-forest/60 backdrop-blur-sm animate-in fade-in"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowBreakdownModal(false);
+          }}
+        >
+          <div className="min-h-full flex items-center justify-center p-3 sm:p-6 text-center sm:text-left">
+            <div
+              className="bg-white rounded-3xl max-w-lg w-full my-6 sm:my-8 border border-warm-border shadow-2xl p-6 sm:p-8 relative text-left"
+              onClick={(e) => e.stopPropagation()}
             >
-              <X className="w-5 h-5" />
-            </button>
+              {/* Close */}
+              <button
+                type="button"
+                onClick={() => setShowBreakdownModal(false)}
+                className="absolute top-5 right-5 p-2 rounded-full hover:bg-warm text-forest/60 hover:text-forest transition-colors z-10"
+              >
+                <X className="w-5 h-5" />
+              </button>
 
             {/* Modal Header */}
             <div className="flex items-center gap-3 mb-4">
@@ -564,6 +573,7 @@ const ActiveJobCard = ({ activeJob, onJobUpdated, onPreviewDemo }) => {
                 </button>
               </div>
             </form>
+            </div>
           </div>
         </div>
       )}

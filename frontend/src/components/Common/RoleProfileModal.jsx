@@ -227,16 +227,26 @@ const RoleProfileModal = ({ isOpen, onClose }) => {
   );
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-forest/60 backdrop-blur-sm animate-in fade-in p-3 sm:p-6 flex justify-center items-start sm:items-center">
-      <div className="bg-white rounded-3xl max-w-2xl w-full my-auto border border-warm-border shadow-2xl p-5 sm:p-7 relative">
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full hover:bg-warm text-forest/60 hover:text-forest transition-colors z-10"
-          aria-label="Close Profile Form"
+    <div
+      className="fixed inset-0 z-50 overflow-y-auto bg-forest/60 backdrop-blur-sm animate-in fade-in"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="min-h-full flex items-center justify-center p-3 sm:p-6 text-center sm:text-left">
+        <div
+          className="bg-white rounded-3xl max-w-2xl w-full my-6 sm:my-8 border border-warm-border shadow-2xl p-5 sm:p-7 relative text-left"
+          onClick={(e) => e.stopPropagation()}
         >
-          <X className="w-5 h-5" />
-        </button>
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            type="button"
+            className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full hover:bg-warm text-forest/60 hover:text-forest transition-colors z-10"
+            aria-label="Close Profile Form"
+          >
+            <X className="w-5 h-5" />
+          </button>
 
         {/* Modal Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 pb-4 border-b border-warm-border pr-8">
@@ -688,6 +698,7 @@ const RoleProfileModal = ({ isOpen, onClose }) => {
             </button>
           </div>
         </form>
+        </div>
       </div>
     </div>
   );

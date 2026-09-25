@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useRole } from '../../context/RoleContext';
 import {
   X,
@@ -18,6 +19,7 @@ import apiClient from '../../services/apiClient';
 
 const AuthModal = ({ isOpen, onClose }) => {
   const { switchRole, loginUserSession } = useRole();
+  const navigate = useNavigate();
   const [authMode, setAuthMode] = useState('password'); // 'password' or 'otp'
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -40,6 +42,30 @@ const AuthModal = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
+  // Centralized authentication completion handler with smooth role-based routing
+  const completeAuthentication = (user, token, message) => {
+    loginUserSession(user, token);
+    setSuccessMsg(message);
+    setTimeout(() => {
+      onClose();
+      // Smoothly navigate to relevant portal based on role if on root or restricted page
+      const currentPath = window.location.pathname;
+      if (currentPath === '/' || currentPath === '/impact' || currentPath === '/ai-learn') {
+        if (user.role === 'donor') navigate('/donate');
+        else if (user.role === 'shelter') navigate('/receive');
+        else if (user.role === 'volunteer') navigate('/volunteer');
+      } else if (
+        (user.role === 'donor' && currentPath !== '/donate') ||
+        (user.role === 'shelter' && currentPath !== '/receive') ||
+        (user.role === 'volunteer' && currentPath !== '/volunteer')
+      ) {
+        if (user.role === 'donor') navigate('/donate');
+        else if (user.role === 'shelter') navigate('/receive');
+        else if (user.role === 'volunteer') navigate('/volunteer');
+      }
+    }, 1000);
+  };
+
   // Handle Standard Password Login / Register
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -60,9 +86,7 @@ const AuthModal = ({ isOpen, onClose }) => {
         });
 
         if (res.data.success) {
-          loginUserSession(res.data.user, res.data.token);
-          setSuccessMsg(`Welcome to MealBridge, ${res.data.user.name}!`);
-          setTimeout(() => onClose(), 1200);
+          completeAuthentication(res.data.user, res.data.token, `Welcome to MealBridge, ${res.data.user.name}!`);
         }
       } else {
         const res = await apiClient.post('/users/login', {
@@ -71,9 +95,7 @@ const AuthModal = ({ isOpen, onClose }) => {
         });
 
         if (res.data.success) {
-          loginUserSession(res.data.user, res.data.token);
-          setSuccessMsg(`Welcome back, ${res.data.user.name}!`);
-          setTimeout(() => onClose(), 1200);
+          completeAuthentication(res.data.user, res.data.token, `Welcome back, ${res.data.user.name}!`);
         }
       }
     } catch (err) {
@@ -129,9 +151,7 @@ const AuthModal = ({ isOpen, onClose }) => {
       });
 
       if (res.data.success) {
-        loginUserSession(res.data.user, res.data.token);
-        setSuccessMsg(`OTP verified successfully! Welcome, ${res.data.user.name}.`);
-        setTimeout(() => onClose(), 1200);
+        completeAuthentication(res.data.user, res.data.token, `OTP verified successfully! Welcome, ${res.data.user.name}.`);
       }
     } catch (err) {
       setErrorMsg(err.response?.data?.message || err.message || 'Invalid or expired OTP');
@@ -157,9 +177,7 @@ const AuthModal = ({ isOpen, onClose }) => {
       });
 
       if (res.data.success) {
-        loginUserSession(res.data.user, res.data.token);
-        setSuccessMsg(`Signed in with Google as ${res.data.user.name}!`);
-        setTimeout(() => onClose(), 1200);
+        completeAuthentication(res.data.user, res.data.token, `Signed in with Google as ${res.data.user.name}!`);
       }
     } catch (err) {
       setErrorMsg(err.response?.data?.message || err.message || 'Google Sign-In failed');
@@ -169,15 +187,26 @@ const AuthModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-forest/60 backdrop-blur-sm animate-in fade-in p-3 sm:p-6 flex justify-center items-start sm:items-center">
-      <div className="bg-white rounded-3xl max-w-md w-full my-auto border border-warm-border shadow-2xl p-5 sm:p-8 relative">
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full hover:bg-warm text-forest/60 hover:text-forest transition-colors"
+    <div
+      className="fixed inset-0 z-50 overflow-y-auto bg-forest/60 backdrop-blur-sm animate-in fade-in"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="min-h-full flex items-center justify-center p-3 sm:p-6 text-center sm:text-left">
+        <div
+          className="bg-white rounded-3xl max-w-md w-full my-6 sm:my-8 border border-warm-border shadow-2xl p-5 sm:p-8 relative text-left"
+          onClick={(e) => e.stopPropagation()}
         >
-          <X className="w-5 h-5" />
-        </button>
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            type="button"
+            aria-label="Close Authentication Dialog"
+            className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full hover:bg-warm text-forest/60 hover:text-forest transition-colors z-10"
+          >
+            <X className="w-5 h-5" />
+          </button>
 
         {/* Modal Header */}
         <div className="text-center mb-5">
@@ -560,6 +589,7 @@ const AuthModal = ({ isOpen, onClose }) => {
             )}
           </div>
         )}
+        </div>
       </div>
     </div>
   );
