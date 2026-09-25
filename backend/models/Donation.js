@@ -26,7 +26,7 @@ const donationSchema = new mongoose.Schema(
     quantityKg: {
       type: Number,
       required: [true, 'Please specify quantity in kg'],
-      min: [0.5, 'Minimum donation is 0.5 kg'],
+      min: [3, 'Minimum donation is 3 kg for courier dispatch feasibility'],
     },
     servingsCount: {
       type: Number,

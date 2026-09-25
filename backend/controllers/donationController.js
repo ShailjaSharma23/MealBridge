@@ -44,6 +44,15 @@ export const createDonation = async (req, res, next) => {
       });
     }
 
+    const qty = parseFloat(quantityKg);
+    if (isNaN(qty) || qty < 3) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'Logistical Feasibility Requirement: Minimum donation quantity for volunteer courier dispatch is 3 kg (~8–10 meals) to justify courier emissions and route planning.',
+      });
+    }
+
     const expiryNum = parseFloat(expiryHours) || 3;
     const expiresAt = new Date(Date.now() + expiryNum * 60 * 60 * 1000);
 
@@ -52,7 +61,7 @@ export const createDonation = async (req, res, next) => {
       donorName: donor.name,
       foodName: foodName || 'Fresh Cooked Meals',
       category: category || 'Cooked Meals',
-      quantityKg: parseFloat(quantityKg) || 10,
+      quantityKg: qty,
       dietaryType: dietaryType || 'Veg Only',
       expiryHours: expiryNum,
       expiresAt,
