@@ -14,6 +14,8 @@ import {
   KeyRound,
   ShieldCheck,
   Send,
+  AlertCircle,
+  Settings,
 } from 'lucide-react';
 import apiClient from '../../services/apiClient';
 
@@ -40,6 +42,12 @@ const AuthModal = ({ isOpen, onClose }) => {
   const [otpCode, setOtpCode] = useState('');
   const [otpHint, setOtpHint] = useState('');
 
+  // Live Backend URL Configuration
+  const [showUrlConfig, setShowUrlConfig] = useState(false);
+  const [customUrlInput, setCustomUrlInput] = useState(() =>
+    typeof window !== 'undefined' ? localStorage.getItem('mealbridge_api_url') || '' : ''
+  );
+
   if (!isOpen) return null;
 
   // Centralized authentication completion handler with smooth role-based routing
@@ -64,6 +72,27 @@ const AuthModal = ({ isOpen, onClose }) => {
         else if (user.role === 'volunteer') navigate('/volunteer');
       }
     }, 1000);
+  };
+
+  // Handle setting a custom Render backend URL from the modal UI
+  const handleSaveCustomUrl = (e) => {
+    e.preventDefault();
+    if (!customUrlInput.trim()) {
+      localStorage.removeItem('mealbridge_api_url');
+      apiClient.defaults.baseURL = 'https://mealbridge-backend.onrender.com/api';
+      setErrorMsg('');
+      setSuccessMsg('Reset backend URL to default.');
+      setShowUrlConfig(false);
+      return;
+    }
+    const clean = customUrlInput.trim().endsWith('/api')
+      ? customUrlInput.trim()
+      : `${customUrlInput.trim().replace(/\/+$/, '')}/api`;
+    localStorage.setItem('mealbridge_api_url', clean);
+    apiClient.defaults.baseURL = clean;
+    setErrorMsg('');
+    setSuccessMsg(`Backend URL updated to: ${clean}! Retrying...`);
+    setShowUrlConfig(false);
   };
 
   // Handle Standard Password Login / Register
@@ -285,9 +314,73 @@ const AuthModal = ({ isOpen, onClose }) => {
           </div>
         )}
         {errorMsg && (
-          <div className="mb-4 p-3 rounded-2xl bg-rose-50 text-rose-800 text-xs font-semibold border border-rose-200">
-            {errorMsg}
+          <div className="mb-4 p-3.5 rounded-2xl bg-rose-50 text-rose-800 text-xs font-semibold border border-rose-200 animate-in fade-in">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <div>{errorMsg}</div>
+                {(errorMsg.includes('404') || errorMsg.includes('unreachable') || errorMsg.includes('connect')) && (
+                  <div className="mt-2 pt-2 border-t border-rose-200/80">
+                    <div className="text-[11px] text-rose-700">
+                      <strong>Target API:</strong>{' '}
+                      <span className="font-mono bg-white px-1.5 py-0.5 rounded border border-rose-200 text-[10px]">
+                        {apiClient.defaults.baseURL}
+                      </span>
+                    </div>
+                    <div className="mt-1.5 flex items-center justify-between gap-2">
+                      <span className="text-[10px] text-rose-600">Have a custom Render backend URL?</span>
+                      <button
+                        type="button"
+                        onClick={() => setShowUrlConfig(!showUrlConfig)}
+                        className="px-2.5 py-1 bg-white hover:bg-rose-100 text-rose-800 border border-rose-300 rounded-lg font-bold text-[10px] transition-colors flex items-center gap-1 shadow-xs"
+                      >
+                        <Settings className="w-3 h-3 text-rose-600" />
+                        <span>{showUrlConfig ? 'Close' : 'Set Backend URL'}</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
+        )}
+
+        {/* Dynamic Backend URL Config Box */}
+        {showUrlConfig && (
+          <form onSubmit={handleSaveCustomUrl} className="mb-4 p-3.5 rounded-2xl bg-sage-50 border border-sage-300 animate-in fade-in space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-forest flex items-center gap-1.5">
+                <Settings className="w-3.5 h-3.5 text-sage-600" />
+                <span>Render Backend URL:</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowUrlConfig(false)}
+                className="text-[10px] text-forest/60 hover:text-forest font-semibold"
+              >
+                ✕ Cancel
+              </button>
+            </div>
+            <p className="text-[11px] text-forest/70">
+              Paste the URL shown at the top of your Render Web Service dashboard:
+            </p>
+            <div className="flex gap-1.5">
+              <input
+                type="url"
+                required
+                placeholder="https://mealbridge-backend-xxxx.onrender.com"
+                value={customUrlInput}
+                onChange={(e) => setCustomUrlInput(e.target.value)}
+                className="flex-1 bg-white border border-sage-300 rounded-xl px-2.5 py-1.5 text-xs text-forest focus:outline-none focus:ring-1 focus:ring-sage-500 font-mono"
+              />
+              <button
+                type="submit"
+                className="btn-sage px-3 py-1.5 rounded-xl text-xs font-bold shadow-xs whitespace-nowrap"
+              >
+                Save & Connect
+              </button>
+            </div>
+          </form>
         )}
         {successMsg && (
           <div className="mb-4 p-3 rounded-2xl bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-200 flex items-center gap-1.5">
