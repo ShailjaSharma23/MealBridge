@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useRole } from '../../context/RoleContext';
 import {
@@ -226,9 +227,9 @@ const RoleProfileModal = ({ isOpen, onClose }) => {
     Math.round((formData.currentStorageUsedKg / (formData.capacityKg || 1)) * 100)
   );
 
-  return (
+  const modalMarkup = (
     <div
-      className="fixed inset-0 z-50 overflow-y-auto bg-forest/60 backdrop-blur-sm animate-in fade-in"
+      className="fixed inset-0 z-[9999] overflow-y-auto bg-forest/60 backdrop-blur-sm animate-in fade-in"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -702,6 +703,8 @@ const RoleProfileModal = ({ isOpen, onClose }) => {
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(modalMarkup, document.body) : modalMarkup;
 };
 
 export default RoleProfileModal;
