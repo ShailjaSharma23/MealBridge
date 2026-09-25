@@ -342,7 +342,7 @@ We have prepared comprehensive presentation documents for the examination panel:
 
 ## 👥 11. Team & Credits
 
-- **Yash Bhatt** — Full-Stack Architecture, Real-Time Routing, Geospatial Dispatch, Database Design & Viva Lead.
+- **Manish Bhatt** — Full-Stack Architecture, Real-Time Routing, Geospatial Dispatch, Database Design & Viva Lead.
 - **Shailja Sharma** — UI/UX Design, Regulatory Compliance, AI Integration & Impact Metrics.
 - **Bhumika Sharma** — Interface Design, User Experience, Design Systems & Accessibility.
 - **Naitik Tiwari** — Technology Research, Solution Validation, Technical Feasibility & Innovation Strategy.
