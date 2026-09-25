@@ -344,5 +344,7 @@ We have prepared comprehensive presentation documents for the examination panel:
 
 - **Yash Bhatt** — Full-Stack Architecture, Real-Time Routing, Geospatial Dispatch, Database Design & Viva Lead.
 - **Shailja Sharma** — UI/UX Design, Regulatory Compliance, AI Integration & Impact Metrics.
+- **Bhumika Sharma** — Interface Design, User Experience, Design Systems & Accessibility.
+- **Naitik Tiwari** — Technology Research, Solution Validation, Technical Feasibility & Innovation Strategy.
 
 *Developed with pride for **AmiHacks 1.0 (Track A: Surplus-to-Shelter)**.*
