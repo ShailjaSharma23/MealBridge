@@ -13,14 +13,31 @@ const Navbar = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const location = useLocation();
 
-  const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'Donate', path: '/donate' },
-    { name: 'Receive', path: '/receive' },
-    { name: 'Volunteer', path: '/volunteer' },
-    { name: 'AI Learn Hub', path: '/ai-learn' },
-    { name: 'Impact', path: '/impact' },
-  ];
+  // Confidential Role-Based Navigation:
+  // - Donors only see Donate (Receive & Volunteer are strictly hidden)
+  // - Shelters only see Receive (Donate & Volunteer are strictly hidden)
+  // - Volunteers only see Volunteer (Donate & Receive are strictly hidden)
+  // - Guests only see public informational links (Home, AI Learn Hub, Impact)
+  const getNavLinks = () => {
+    const links = [{ name: 'Home', path: '/' }];
+
+    if (currentRole === 'donor') {
+      links.push({ name: 'Donate Surplus', path: '/donate' });
+    } else if (currentRole === 'shelter') {
+      links.push({ name: 'Receive Food', path: '/receive' });
+    } else if (currentRole === 'volunteer') {
+      links.push({ name: 'Volunteer Board', path: '/volunteer' });
+    }
+
+    links.push(
+      { name: 'AI Learn Hub', path: '/ai-learn' },
+      { name: 'Impact', path: '/impact' }
+    );
+
+    return links;
+  };
+
+  const navLinks = getNavLinks();
 
   const roles = [
     { id: 'donor', label: 'Donor Profile', desc: 'Post surplus food & track meals' },

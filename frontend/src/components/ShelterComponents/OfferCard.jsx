@@ -3,67 +3,68 @@ import { Store, MapPin, Leaf, Clock, ArrowRight, CheckCircle, ShieldCheck } from
 import confetti from 'canvas-confetti';
 import apiClient from '../../services/apiClient';
 
-const OfferCard = ({ offer, onOfferUpdated }) => {
+const OfferCard = ({ offer, onOfferUpdated, onDiscardOffer }) => {
   const [loading, setLoading] = useState(false);
-  const [statusState, setStatusState] = useState(offer.status || 'offered');
+  const [isAccepted, setIsAccepted] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
 
   const handleAction = async (action) => {
     setLoading(true);
-    try {
-      const res = await apiClient.post(`/shelters/offers/${offer.matchId || offer._id}/respond`, {
-        action,
-      });
+    const offerId = offer.matchId || offer._id;
 
-      if (res.data.success) {
-        if (action === 'accept') {
-          confetti({
-            particleCount: 70,
-            spread: 60,
-            origin: { y: 0.6 },
-            colors: ['#8BA888', '#F59E0B'],
-          });
-          setStatusState('accepted');
-          setToastMsg('🎉 Accepted! Dispatched to Volunteer board.');
-        } else {
-          setStatusState('passed');
-          setToastMsg(`⚡ Cascaded to next nearest shelter (${res.data.cascadedTo || 'Sunshine Shelter'}).`);
+    try {
+      if (action === 'accept') {
+        confetti({
+          particleCount: 70,
+          spread: 60,
+          origin: { y: 0.6 },
+          colors: ['#8BA888', '#F59E0B'],
+        });
+        setIsAccepted(true);
+        setToastMsg('🎉 Accepted! Dispatched to Volunteer board.');
+
+        // Trigger API update
+        apiClient.post(`/shelters/offers/${offerId}/respond`, { action }).catch((err) =>
+          console.warn('API error accepting offer:', err.message)
+        );
+
+        // After brief confirmation animation, remove from incoming queue and rearrange cards
+        setTimeout(() => {
+          if (onDiscardOffer) onDiscardOffer(offerId, 'accept');
+          else if (onOfferUpdated) onOfferUpdated();
+        }, 1100);
+      } else {
+        // Discard card immediately and let remaining cards rearrange and fill space
+        if (onDiscardOffer) {
+          onDiscardOffer(offerId, 'pass');
+        } else if (onOfferUpdated) {
+          onOfferUpdated();
         }
 
-        if (onOfferUpdated) onOfferUpdated();
+        // Fire API cascade in background
+        apiClient.post(`/shelters/offers/${offerId}/respond`, { action: 'pass' }).catch((err) =>
+          console.warn('API error passing offer:', err.message)
+        );
       }
     } catch (err) {
       console.warn('Fallback handling action:', err.message);
       if (action === 'accept') {
-        setStatusState('accepted');
-        setToastMsg('Accepted! Dispatched to Volunteer board.');
+        setIsAccepted(true);
+        setTimeout(() => {
+          if (onDiscardOffer) onDiscardOffer(offerId, 'accept');
+          else if (onOfferUpdated) onOfferUpdated();
+        }, 1100);
       } else {
-        setStatusState('passed');
-        setToastMsg('Offer cascaded to next nearest shelter.');
+        if (onDiscardOffer) onDiscardOffer(offerId, 'pass');
+        else if (onOfferUpdated) onOfferUpdated();
       }
-      if (onOfferUpdated) onOfferUpdated();
     } finally {
       setLoading(false);
-      setTimeout(() => setToastMsg(''), 4500);
     }
   };
 
-  if (statusState === 'passed') {
-    return (
-      <div className="bg-warm/60 rounded-3xl p-6 border border-dashed border-warm-border text-center flex flex-col items-center justify-center min-h-[360px] opacity-75">
-        <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center mb-2">
-          <Clock className="w-6 h-6 animate-spin" />
-        </div>
-        <div className="font-bold text-forest text-sm">Offer Cascaded</div>
-        <div className="text-xs text-forest/60 max-w-xs mt-1">
-          Automatically forwarded to the next nearest shelter under the 15-minute smart cascade rule.
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="bg-white rounded-3xl overflow-hidden border border-warm-border shadow-card hover:shadow-hover transition-all duration-300 flex flex-col justify-between">
+    <div className="bg-white rounded-3xl overflow-hidden border border-warm-border shadow-card hover:shadow-hover transition-all duration-300 flex flex-col justify-between animate-in fade-in zoom-in-95">
       <div>
         {/* Card Image Banner with LIVE badge */}
         <div className="relative aspect-[16/10] overflow-hidden bg-sage-50">
@@ -127,8 +128,8 @@ const OfferCard = ({ offer, onOfferUpdated }) => {
 
       {/* Action Buttons */}
       <div className="p-6 pt-0 space-y-2.5">
-        {statusState === 'accepted' ? (
-          <div className="w-full py-3 px-4 rounded-2xl bg-emerald-100 text-emerald-800 font-bold text-xs text-center flex items-center justify-center gap-2">
+        {isAccepted ? (
+          <div className="w-full py-3 px-4 rounded-2xl bg-emerald-100 text-emerald-800 font-bold text-xs text-center flex items-center justify-center gap-2 animate-in fade-in">
             <CheckCircle className="w-4 h-4 text-emerald-600" />
             <span>Accepted • Dispatched to Volunteer</span>
           </div>
@@ -137,7 +138,7 @@ const OfferCard = ({ offer, onOfferUpdated }) => {
             <button
               onClick={() => handleAction('accept')}
               disabled={loading}
-              className="w-full btn-sage text-xs py-3 rounded-2xl shadow-sm hover:shadow-hover flex items-center justify-center gap-1.5 font-bold"
+              className="w-full btn-sage text-xs py-3 rounded-2xl shadow-sm hover:shadow-hover flex items-center justify-center gap-1.5 font-bold cursor-pointer"
             >
               <span>Accept Donation</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -146,7 +147,7 @@ const OfferCard = ({ offer, onOfferUpdated }) => {
             <button
               onClick={() => handleAction('pass')}
               disabled={loading}
-              className="w-full py-2.5 px-4 rounded-2xl border border-sunburst-300 text-sunburst-700 hover:bg-sunburst-50 font-semibold text-xs transition-colors flex items-center justify-center"
+              className="w-full py-2.5 px-4 rounded-2xl border border-sunburst-300 text-sunburst-700 hover:bg-sunburst-50 font-semibold text-xs transition-colors flex items-center justify-center cursor-pointer"
             >
               Pass to Next Shelter
             </button>

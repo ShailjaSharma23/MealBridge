@@ -18,12 +18,22 @@ export const getIncomingOffers = async (req, res, next) => {
       shelter = (await User.findOne({ role: 'shelter' })) || (await User.findOne());
     }
 
-    const matches = await Match.find({
-      status: { $in: ['offered', 'accepted', 'volunteer_assigned'] },
-    })
+    let matchQuery = { status: 'offered' };
+    if (shelter && shelter._id && !shelter.email?.includes('demo')) {
+      matchQuery.shelter = shelter._id;
+    }
+
+    let matches = await Match.find(matchQuery)
       .populate('donation')
       .populate('donor', 'name phone location isVerified')
       .sort({ createdAt: -1 });
+
+    if (matches.length === 0 && (!req.user || req.user.email?.includes('demo'))) {
+      matches = await Match.find({ status: 'offered' })
+        .populate('donation')
+        .populate('donor', 'name phone location isVerified')
+        .sort({ createdAt: -1 });
+    }
 
     const offers = matches.map((m) => {
       const don = m.donation || {};
