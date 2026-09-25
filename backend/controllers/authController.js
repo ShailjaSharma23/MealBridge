@@ -98,7 +98,21 @@ export const switchActiveRole = async (req, res, next) => {
  */
 export const registerUser = async (req, res, next) => {
   try {
-    let { name, email, password, role, organizationType, phone, address } = req.body;
+    let {
+      name,
+      email,
+      password,
+      role,
+      organizationType,
+      phone,
+      address,
+      fssaiLicense,
+      capacityKg,
+      foodPreferences,
+      contactPerson,
+      vehicleType,
+      coordinates,
+    } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ success: false, message: 'Please provide email and password' });
@@ -119,22 +133,38 @@ export const registerUser = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'User already exists with this email' });
     }
 
+    const assignedRole = role || 'donor';
+
     const user = await User.create({
       name,
       email: cleanEmail,
       password,
-      role: role || 'donor',
-      organizationType: organizationType || (role === 'shelter' ? 'Shelter' : role === 'volunteer' ? 'Individual' : 'Restaurant'),
+      role: assignedRole,
+      organizationType:
+        organizationType ||
+        (assignedRole === 'shelter'
+          ? 'Shelter'
+          : assignedRole === 'volunteer'
+          ? 'Individual'
+          : 'Restaurant'),
       phone: phone || '',
-      location: { address: address || '' },
+      fssaiLicense: fssaiLicense || '',
+      isVerified: true,
+      location: {
+        address: address || '',
+        coordinates: coordinates || { lat: 28.5582, lng: 77.2023 },
+      },
       shelterDetails: {
-        capacityKg: 50,
+        capacityKg: capacityKg ? Number(capacityKg) : 50,
         currentStorageUsedKg: 0,
-        foodPreferences: ['Veg Only', 'Cooked Meals Accepted'],
-        contactPerson: '',
+        foodPreferences:
+          Array.isArray(foodPreferences) && foodPreferences.length > 0
+            ? foodPreferences
+            : ['Veg Only', 'Cooked Meals Accepted'],
+        contactPerson: contactPerson || name,
       },
       volunteerDetails: {
-        vehicleType: 'Two-Wheeler / Scooter',
+        vehicleType: vehicleType || 'Two-Wheeler / Scooter',
         completedRescuesCount: 0,
         totalKgDelivered: 0,
         communitiesServed: 0,

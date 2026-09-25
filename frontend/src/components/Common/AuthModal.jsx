@@ -16,6 +16,10 @@ import {
   Send,
   AlertCircle,
   Settings,
+  Phone,
+  MapPin,
+  Refrigerator,
+  Tag,
 } from 'lucide-react';
 import apiClient from '../../services/apiClient';
 
@@ -36,6 +40,13 @@ const AuthModal = ({ isOpen, onClose }) => {
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [organizationType, setOrganizationType] = useState('Restaurant');
+
+  // Role-specific registration fields
+  const [fssaiLicense, setFssaiLicense] = useState('');
+  const [capacityKg, setCapacityKg] = useState('50');
+  const [foodPreferences, setFoodPreferences] = useState(['Veg Only', 'Cooked Meals Accepted']);
+  const [contactPerson, setContactPerson] = useState('');
+  const [vehicleType, setVehicleType] = useState('Two-Wheeler / Scooter');
 
   // OTP flow states
   const [otpSent, setOtpSent] = useState(false);
@@ -112,6 +123,11 @@ const AuthModal = ({ isOpen, onClose }) => {
           phone,
           address,
           organizationType,
+          fssaiLicense: role === 'donor' ? fssaiLicense : undefined,
+          capacityKg: role === 'shelter' ? Number(capacityKg) || 50 : undefined,
+          foodPreferences: role === 'shelter' ? foodPreferences : undefined,
+          contactPerson: role === 'shelter' ? (contactPerson || name) : undefined,
+          vehicleType: role === 'volunteer' ? vehicleType : undefined,
         });
 
         if (res.data.success) {
@@ -596,22 +612,191 @@ const AuthModal = ({ isOpen, onClose }) => {
               </div>
             </div>
 
-            {isRegister && role === 'donor' && (
+            {isRegister && (
               <div>
                 <label className="block text-xs font-bold text-forest mb-1">
-                  Establishment Type
+                  {role === 'donor'
+                    ? 'Contact Phone (Pickup Bay)'
+                    : role === 'shelter'
+                    ? 'Emergency Intake Phone'
+                    : 'Phone / WhatsApp'}
                 </label>
-                <select
-                  value={organizationType}
-                  onChange={(e) => setOrganizationType(e.target.value)}
-                  className="w-full bg-warm border border-warm-border rounded-2xl px-3 py-2.5 text-xs font-semibold text-forest focus:outline-none focus:ring-2 focus:ring-sage-400"
-                >
-                  <option value="Restaurant">Restaurant / Cafe</option>
-                  <option value="Bakery">Bakery / Patisserie</option>
-                  <option value="Cafeteria">College / Corporate Cafeteria</option>
-                  <option value="Supermarket">Supermarket</option>
-                  <option value="Other">Catering & Banquet Hall</option>
-                </select>
+                <div className="relative">
+                  <Phone className="w-3.5 h-3.5 absolute left-3.5 top-3 text-forest/40" />
+                  <input
+                    type="tel"
+                    required
+                    placeholder="+91 98112 34567"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full bg-warm border border-warm-border rounded-2xl pl-9 pr-4 py-2.5 text-xs font-semibold text-forest focus:outline-none focus:ring-2 focus:ring-sage-400"
+                  />
+                </div>
+              </div>
+            )}
+
+            {isRegister && (
+              <div>
+                <label className="block text-xs font-bold text-forest mb-1">
+                  {role === 'donor'
+                    ? 'Pickup Bay Address & City'
+                    : role === 'shelter'
+                    ? 'Shelter Intake Address & City'
+                    : 'Operating Base / Neighborhood'}
+                </label>
+                <div className="relative">
+                  <MapPin className="w-3.5 h-3.5 absolute left-3.5 top-3 text-forest/40" />
+                  <input
+                    type="text"
+                    required
+                    placeholder={
+                      role === 'donor'
+                        ? '123, Green Park Market, New Delhi'
+                        : role === 'shelter'
+                        ? 'Community Hall 4, Lajpat Nagar, New Delhi'
+                        : 'South Delhi / Hauz Khas'
+                    }
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    className="w-full bg-warm border border-warm-border rounded-2xl pl-9 pr-4 py-2.5 text-xs font-semibold text-forest focus:outline-none focus:ring-2 focus:ring-sage-400"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* DONOR SPECIFIC REGISTRATION FIELDS */}
+            {isRegister && role === 'donor' && (
+              <div className="space-y-3 pt-1 border-t border-warm-border/60">
+                <div>
+                  <label className="block text-xs font-bold text-forest mb-1">
+                    Establishment Type
+                  </label>
+                  <select
+                    value={organizationType}
+                    onChange={(e) => setOrganizationType(e.target.value)}
+                    className="w-full bg-warm border border-warm-border rounded-2xl px-3 py-2.5 text-xs font-semibold text-forest focus:outline-none focus:ring-2 focus:ring-sage-400"
+                  >
+                    <option value="Restaurant">Fine Dining / Restaurant / Cafe</option>
+                    <option value="Bakery">Bakery & Patisserie</option>
+                    <option value="Cafeteria">Corporate / College Cafeteria</option>
+                    <option value="Supermarket">Supermarket & Grocery Retail</option>
+                    <option value="Other">Catering & Banquet Hall</option>
+                  </select>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-bold text-forest">
+                      FSSAI Food License Number
+                    </label>
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                      Safety Compliance
+                    </span>
+                  </div>
+                  <div className="relative">
+                    <ShieldCheck className="w-3.5 h-3.5 absolute left-3.5 top-3 text-emerald-600" />
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. FSSAI-DEL-2026-98104"
+                      value={fssaiLicense}
+                      onChange={(e) => setFssaiLicense(e.target.value)}
+                      className="w-full bg-warm border border-warm-border rounded-2xl pl-9 pr-4 py-2.5 text-xs font-semibold text-forest focus:outline-none focus:ring-2 focus:ring-sage-400"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* SHELTER SPECIFIC REGISTRATION FIELDS */}
+            {isRegister && role === 'shelter' && (
+              <div className="space-y-3 pt-1 border-t border-warm-border/60">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-xs font-bold text-forest mb-1">
+                      Contact Person
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Priya Sharma"
+                      value={contactPerson}
+                      onChange={(e) => setContactPerson(e.target.value)}
+                      className="w-full bg-warm border border-warm-border rounded-2xl px-3 py-2.5 text-xs font-semibold text-forest focus:outline-none focus:ring-2 focus:ring-sage-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-forest mb-1">
+                      Cold Storage (kg)
+                    </label>
+                    <div className="relative">
+                      <Refrigerator className="w-3.5 h-3.5 absolute left-3 top-3 text-forest/40" />
+                      <input
+                        type="number"
+                        min="10"
+                        max="1000"
+                        required
+                        placeholder="50"
+                        value={capacityKg}
+                        onChange={(e) => setCapacityKg(e.target.value)}
+                        className="w-full bg-warm border border-warm-border rounded-2xl pl-8 pr-3 py-2.5 text-xs font-semibold text-forest focus:outline-none focus:ring-2 focus:ring-sage-400"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-forest mb-1.5">
+                    Dietary Acceptance Preferences
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {['Veg Only', 'Cooked Meals Accepted', 'Bakery & Breads Accepted', 'Packaged Goods'].map((pref) => {
+                      const isSelected = foodPreferences.includes(pref);
+                      return (
+                        <button
+                          key={pref}
+                          type="button"
+                          onClick={() => {
+                            if (isSelected) {
+                              setFoodPreferences(foodPreferences.filter((p) => p !== pref));
+                            } else {
+                              setFoodPreferences([...foodPreferences, pref]);
+                            }
+                          }}
+                          className={`text-[10px] font-bold px-2.5 py-1 rounded-full border transition-all ${
+                            isSelected
+                              ? 'bg-sage-600 text-white border-sage-600 shadow-xs'
+                              : 'bg-warm text-forest/70 border-warm-border hover:bg-white'
+                          }`}
+                        >
+                          {isSelected ? '✓ ' : '+ '}{pref}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* VOLUNTEER SPECIFIC REGISTRATION FIELDS */}
+            {isRegister && role === 'volunteer' && (
+              <div className="pt-1 border-t border-warm-border/60">
+                <label className="block text-xs font-bold text-forest mb-1">
+                  Rescue Vehicle Type
+                </label>
+                <div className="relative">
+                  <Truck className="w-3.5 h-3.5 absolute left-3.5 top-3 text-forest/40" />
+                  <select
+                    value={vehicleType}
+                    onChange={(e) => setVehicleType(e.target.value)}
+                    className="w-full bg-warm border border-warm-border rounded-2xl pl-9 pr-4 py-2.5 text-xs font-semibold text-forest focus:outline-none focus:ring-2 focus:ring-sage-400"
+                  >
+                    <option value="Two-Wheeler / Scooter">Two-Wheeler / Scooter / Motorcycle</option>
+                    <option value="Electric Cargo Van / Auto">Electric Cargo Van / Auto</option>
+                    <option value="Bicycle / Eco Courier">Bicycle / Eco Courier</option>
+                    <option value="Four-Wheeler / Car">Four-Wheeler / Car / SUV</option>
+                  </select>
+                </div>
               </div>
             )}
 
